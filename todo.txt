@@ -1,0 +1,4 @@
+Automatic GIF conversion
+If you try to upload a static emote to a server that has no more static slots, the bot will automatically convert the image to a GIF.
+When this happens, the bot will let you know.
+

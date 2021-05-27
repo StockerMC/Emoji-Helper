@@ -1,0 +1,12 @@
+{
+    "bot": {
+        "token": "ODIzMjc0NjYzNTA4NDQzMTM3.YFecRw.weStdVGMyRhSBYqaR8FVw_Xa0P0"
+    },
+    "database": {
+        "user": "postgres",
+        "password": "SuperDBgOlDmmxDRAWR!!231?",
+        "database": "request_gift",
+        "host": "127.0.0.1",
+        "setup_completed": false
+    }
+}
