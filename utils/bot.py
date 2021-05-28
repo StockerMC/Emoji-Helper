@@ -52,9 +52,9 @@ class Bot(commands.Bot):
 		self.default_prefix = "e!"
 		self.default_emojify_toggle = True
 		self.support_server = "https://discord.gg/nptFDCVPWX"
-		self.error_channel = 824757004085755934
+		self.error_channel = 825852962784935956
 		self.bug_channel = 837717191871823892
-		self.guild_log_channel = 824757004085755934
+		self.guild_log_channel = 828809272573820999
 		self.success_emoji = "<:success:835736813929758740>"
 		self.error_emoji = "<:error:836034660932386816>"
 
