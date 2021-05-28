@@ -10,7 +10,7 @@ User=root
 Restart=on-failure
 RestartSec=5s
 StartLimitIntervalSec=500
-StartLimitBurst=5
+StartLimitBurst=10
 
 [Install]
 WantedBy=multi-user.target
