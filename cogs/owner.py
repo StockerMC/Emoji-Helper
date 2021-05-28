@@ -43,8 +43,7 @@ class Owner(commands.Cog):
 		process = await asyncio.create_subprocess_shell(
 			"git pull",
 			stdout=asyncio.subprocess.PIPE,
-			stderr=asyncio.subprocess.PIPE,
-			loop=self.bot.loop,
+			stderr=asyncio.subprocess.PIPE
 		)
 
 		stdout, stderr = await process.communicate()
@@ -89,10 +88,6 @@ class Owner(commands.Cog):
 	async def fetch(self, ctx, *, query):
 		result = await self.bot.pool.fetch(query.lstrip("```sql").rstrip("```"))
 		await ctx.send(f"```\n{result}```")
-
-	@commands.command()
-	async def test(self, ctx):
-		await ctx.send("yes")
 
 def setup(bot):
 	bot.add_cog(Owner(bot))
