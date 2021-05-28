@@ -158,7 +158,7 @@ class Bot(commands.Bot):
 			"833433244087222342": "e!"
 		}
 
-		prefixes = {k: v for k, v in prefixes if v != "e!"}
+		prefixes = {k: v for k, v in prefixes.items() if v != "e!"}
 		for guild, prefix in prefixes.items():
 			from .database import change_prefix
 			await change_prefix(int(guild), prefix, self)
