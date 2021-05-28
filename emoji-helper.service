@@ -2,7 +2,7 @@
 Description=Emoji Helper
 After=network-online.target
 StartLimitIntervalSec=500
-StartLimitBurst=10
+StartLimitBurst=5
 
 [Service]
 Type=simple
