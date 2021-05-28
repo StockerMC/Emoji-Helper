@@ -1,2 +1,3 @@
 discord.py==1.7.2
 asyncpg==0.22.0
+Pillow==8.2.0
