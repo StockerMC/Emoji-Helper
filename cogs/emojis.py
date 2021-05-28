@@ -74,8 +74,8 @@ class Emojis(commands.Cog):
 		matches = list(filter(is_not_none, matches))
 
 		if matches:
-			if len(matches) > 1:
-				await ctx.message.add_reaction("▶")
+			if len(matches) > 2:
+				await ctx.message.add_reaction("\U000025b6")
 			for match in matches:
 				# if not match:
 				# 	continue
@@ -100,8 +100,9 @@ class Emojis(commands.Cog):
 
 				emoji = await ctx.guild.create_custom_emoji(name=name, image=image, reason=f"Added by {ctx.author} (ID: {ctx.author.id})")
 				await ctx.send(f"Emoji {emoji} successfully added{' as a GIF' if converted else ''}")
-			await ctx.message.remove_reaction("▶")
-			await ctx.message.add_reaction("✅")
+			if len(matches) > 2:
+				await ctx.message.remove_reaction("\U000025b6")
+				await ctx.message.add_reaction("\U00002705")
 
 		elif ctx.message.attachments:
 			try:
@@ -245,36 +246,36 @@ class Emojis(commands.Cog):
 	async def list_(self, ctx, emoji_type: lambda arg: arg.lower()="all"):
 		"""Lists all emojis in the guild"""
 		emojis = ctx.guild.emojis if emoji_type == "all" else [emoji for emoji in ctx.guild.emojis if emoji.animated] if emoji_type == "animated" else [emoji for emoji in ctx.guild.emojis if not emoji.animated] if emoji_type == "static" else None
-		if emojis is None:
+		if not emojis:
 			return await ctx.send("Please specify a valid emoji type (all, animated or static)")
 		pages = round(len(emojis) / 10) if round(len(emojis) / 10) > 0 else 1
 		current_page = 1
 		embed = self.gen_list(emojis, pages, current_page)
 		msg = await ctx.send(embed=embed)
-		reactions = ["⏮️", "⏪", "⏩", "⏭️", "⏹️"]
+		reactions = ["\U000023ee\U0000fe0f", "\U000023ea", "\U000023e9", "\U000025b6\U0000fe0f", "\U000023f9\U0000fe0f"]
 		for reaction in reactions:
 			await msg.add_reaction(reaction)
 
 		while True:
 			# reaction, user = await self.bot.wait_for("reaction_add", check=check) # timeout of 80?
 			reaction, _ = await ctx.wait_for("reaction_add", message=msg, reactions=reactions)
-			if str(reaction.emoji) == "⏮️":
+			if str(reaction.emoji) == "\U000023ee\U0000fe0f":
 				current_page = 1
 				embed = self.gen_list(emojis, pages, current_page)
 				await msg.edit(embed=embed)
-			elif str(reaction.emoji) == "⏪":
+			elif str(reaction.emoji) == "\U000023ea":
 				if current_page - 1 < 1:
 					continue
 				current_page -= 1
 				embed = self.gen_list(emojis, pages, current_page)
 				await msg.edit(embed=embed)
-			elif str(reaction.emoji) == "⏩":
+			elif str(reaction.emoji) == "\U000023e9":
 				if current_page + 1 > pages:
 					continue
 				current_page += 1
 				embed = self.gen_list(emojis, pages, current_page)
 				await msg.edit(embed=embed)
-			elif str(reaction.emoji) == "⏭️":
+			elif str(reaction.emoji) == "\U000025b6\U0000fe0f":
 				current_page = pages
 				embed = self.gen_list(emojis, pages, current_page)
 				await msg.edit(embed=embed)
@@ -286,12 +287,12 @@ class Emojis(commands.Cog):
 	@commands.has_permissions(manage_emojis=True)
 	async def addmultiple(self, ctx, emojis: commands.Greedy[discord.PartialEmoji]=None):
 		"""Add multiple emojis at once"""
-		if emojis is None:
+		if not emojis:
 			return await ctx.send("Enter the emojis you would like to add separated by a space\nExample: `e!addmultiple :emoji1: :emoji2:`")
 
 		exceptions_raised = 0
 
-		await ctx.message.add_reaction("▶")
+		await ctx.message.add_reaction("\U000025b6")
 		for emoji in emojis:
 			try:
 				await self.add(ctx, name=emoji.name, emoji=str(emoji.url))
@@ -299,13 +300,13 @@ class Emojis(commands.Cog):
 				await ctx.send(str(e))
 				exceptions_raised += 1
 
-		await ctx.message.remove_reaction("▶")
+		await ctx.message.remove_reaction("\U000025b6")
 		if exceptions_raised == len(emojis):
 			await ctx.send("Could not add the emojis provided")
 			return await ctx.message.add_reaction(self.bot.error_emoji)
 		elif exceptions_raised > 0 and exceptions_raised < len(emojis):
 			await ctx.send(f"Could not add {exceptions_raised / len(emojis)} emojis")
-			return await ctx.message.add_reaction("⚠")
+			return await ctx.message.add_reaction("\U000026a0")
 
 		await ctx.message.add_reaction(self.bot.success_emoji)
 
@@ -313,7 +314,7 @@ class Emojis(commands.Cog):
 	@commands.has_permissions(manage_emojis=True)
 	async def removemultiple(self, ctx, emojis: commands.Greedy[discord.PartialEmoji]=None):
 		"""Remove multiple emojis at once"""
-		if emojis is None:
+		if not emojis:
 			return await ctx.send("Enter the emojis you would like to remove separated by a space\nExample: `e!removemultiple :emoji1: :emoji2:`")
 
 		for emoji in emojis:
@@ -324,7 +325,7 @@ class Emojis(commands.Cog):
 	async def export(self, ctx, emoji_type: lambda arg: arg.lower()="all"):
 		"""Get a zip file of all of the guild's emojis | all, animated or static"""
 		emojis = ctx.guild.emojis if emoji_type == "all" else [emoji for emoji in ctx.guild.emojis if emoji.animated] if emoji_type == "animated" else [emoji for emoji in ctx.guild.emojis if not emoji.animated] if emoji_type == "static" else None
-		if emojis is None:
+		if not emojis:
 			return await ctx.send("Please specify a valid emoji type (all, animated or static)")
 		
 		file = await zip_emojis(emojis)
@@ -352,7 +353,7 @@ class Emojis(commands.Cog):
 			file_bytes = await ctx.message.attachments[0].read()
 
 		emojis = await self.bot.loop.run_in_executor(None, unzip_file, file_bytes)
-		if emojis is None:
+		if not emojis:
 			return await ctx.send("No files with a valid type were found. Only PNG, JPG and GIF files are valid.") #/accepted?
 
 		emoji_limit = ctx.guild.emoji_limit
@@ -371,7 +372,7 @@ class Emojis(commands.Cog):
 	@commands.command()
 	async def stats(self, ctx, emoji_type: lambda arg: arg.lower()="all"):
 		# emojis = len(ctx.guild.emojis) if emoji_type == "all" else len([emoji for emoji in ctx.guild.emojis if emoji.animated]) if emoji_type == "animated" else len([emoji for emoji in ctx.guild.emojis if not emoji.animated]) if emoji_type == "static" else None
-		# if emojis is None:
+		# if not emojis:
 		# 	return await ctx.send("Please specify a valid emoji type (all, animated or static)")
 		if emoji_type not in ["all", "static", "animated"]:
 			return await ctx.send("Please specify a valid emoji type (all, animated or static)")
