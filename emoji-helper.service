@@ -1,0 +1,16 @@
+[Unit]
+Description=Emoji Helper
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/root/Emoji-Helper
+ExecStart=/root/Emoji-Helper/venv/bin/python3.9 /root/Emoji-Helper/bot.py
+User=root
+Restart=on-failure
+RestartSec=5s
+StartLimitIntervalSec=500
+StartLimitBurst=5
+
+[Install]
+WantedBy=multi-user.target
