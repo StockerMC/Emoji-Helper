@@ -53,7 +53,10 @@ class Owner(commands.Cog):
 
 		matches = re.findall(r"cogs/([a-zA-Z0-9]+)\.py", stdout)
 		for match in matches:
-			self.bot.reload_extension(f"cogs.{match}")
+			try:
+				self.bot.reload_extension(f"cogs.{match}")
+			except Exception as e:
+				stderr += f"\n{e}"
 
 		reloaded_cogs = ", ".join(matches) if matches else None
 
