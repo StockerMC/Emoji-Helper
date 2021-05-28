@@ -86,7 +86,7 @@ class Emojis(commands.Cog):
 
 				url = get_emoji_url(emoji_id, animated)
 				try:
-					image = await fetch_emoji_image(url)
+					image = await fetch_emoji_image(url, self.bot)
 				except AssertionError:
 					return await ctx.send("Could not find that URL")
 				except URLNotImage:
@@ -135,7 +135,7 @@ class Emojis(commands.Cog):
 			url = match.group()
 			
 			try:
-				image = await fetch_emoji_image(url)
+				image = await fetch_emoji_image(url, self.bot)
 			except AssertionError:
 				return await ctx.send("Could not find that URL") 
 			except URLNotImage:
