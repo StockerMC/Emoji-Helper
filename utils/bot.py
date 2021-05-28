@@ -127,8 +127,8 @@ class Bot(commands.Bot):
 				return await ctx.send("Command raised an exception: HTTPException: 400 Bad Request (error code: 50035): Invalid Form Body\nIn image: File cannot be larger than 256.0 kb.")
 
 			await ctx.send(str(error), allowed_mentions=discord.AllowedMentions.none())
-			if not isinstance(error, commands.CommandNotFound):
-				raise error
+			# if not isinstance(error, commands.CommandNotFound):
+			# 	raise error
 
 			error_type = type(error)
 			error_trace = error.__traceback__
