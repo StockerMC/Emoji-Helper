@@ -10,7 +10,7 @@ WorkingDirectory=/root/Emoji-Helper
 ExecStart=/root/Emoji-Helper/venv/bin/python3.9 /root/Emoji-Helper/bot.py
 User=root
 Restart=on-failure
-RestartSec=5s
+RestartSec=5
 Environment=PYTHONUNBUFFERED=1
 
 [Install]
