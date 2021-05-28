@@ -30,7 +30,16 @@ os.environ["JISHAKU_NO_DM_TRACEBACK"] = "True"
 os.environ["JISHAKU_NO_DM_TRACEBACK"] = "True" 
 os.environ["JISHAKU_HIDE"] = "True"
 
-bot = Bot(command_prefix=database.get_prefix, case_insensitive=True, help_command=None, activity=discord.Game("e!help"), owner_id=323490082382282752, config=config)
+bot = Bot(
+	command_prefix=database.get_prefix,
+	case_insensitive=True,
+	help_command=None,
+	activity=discord.Game("e!help"),
+	owner_id=323490082382282752,
+	config=config,
+	max_messages=None
+)
+
 bot.help_command = Help(sort_commands=True)
 
 for file in os.listdir("cogs"):
