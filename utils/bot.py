@@ -4,6 +4,7 @@ import asyncpg
 import aiohttp
 from utils.errors import *
 from . import database
+import traceback
 
 class Help(commands.MinimalHelpCommand): ## make better help command
 	async def send_pages(self):
@@ -53,6 +54,7 @@ class Bot(commands.Bot):
 		self.default_emojify_toggle = True
 		self.support_server = "https://discord.gg/nptFDCVPWX"
 		self.error_channel = 825852962784935956
+		self.traceback_channel = 847980078813282315
 		self.bug_channel = 837717191871823892
 		self.guild_log_channel = 828809272573820999
 		self.success_emoji = "<:success:835736813929758740>"
@@ -105,6 +107,8 @@ class Bot(commands.Bot):
 
 		else: ## rewrite error handling
 			error_channel = self.get_channel(self.error_channel)
+			traceback_channel = self.get_channel(self.traceback_channel)
+
 			error_ = getattr(error, "original", error)
 			if isinstance(error_, discord.Forbidden):
 				missing_perms = []
@@ -125,5 +129,18 @@ class Bot(commands.Bot):
 			await ctx.send(str(error), allowed_mentions=discord.AllowedMentions.none())
 			if not isinstance(error, commands.CommandNotFound):
 				raise error
+
+			error_type = type(error)
+			error_trace = error.__traceback__
+
+			# 'traceback' is the stdlib module, `import traceback`.
+			lines = traceback.format_exception(error_type, error, error_trace)
+
+			# format_exception returns a list with line breaks embedded in the lines, so let's just stitch the elements together
+			paginator = commands.Paginator()
+			[paginator.add_line(x) for x in ''.join(lines).split("\n")]
 			
-			await error_channel.send(f"{error}\n{ctx.author}")
+			await error_channel.send(f"Exception in command {ctx.command.name} by {ctx.author} \n{error}")
+			
+			for page in paginator.pages:
+				await traceback_channel.send(page)
