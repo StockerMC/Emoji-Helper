@@ -5,7 +5,7 @@
     "database": {
         "user": "postgres",
         "password": "SuperDBgOlDmmxDRAWR!!231?",
-        "database": "request_gift",
+        "database": "emoji_helper",
         "host": "127.0.0.1",
         "setup_completed": false
     }
