@@ -89,9 +89,5 @@ class Owner(commands.Cog):
 		result = await self.bot.pool.fetch(query.lstrip("```sql").rstrip("```"))
 		await ctx.send(f"```\n{result}```")
 
-	@commands.command()
-	async def test(self, ctx):
-		await ctx.send("yes")
-
 def setup(bot):
 	bot.add_cog(Owner(bot))
