@@ -6,7 +6,6 @@ async def change_prefix(guild, prefix, bot):
 		# return
 	await bot.pool.execute("""
 		INSERT INTO prefixes
-		WHERE guild = $1
 		VALUES ($1, $2)
 		ON CONFLICT
 		DO UPDATE
