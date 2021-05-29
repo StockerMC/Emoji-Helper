@@ -258,24 +258,24 @@ class Emojis(commands.Cog):
 
 		while True:
 			# reaction, user = await self.bot.wait_for("reaction_add", check=check) # timeout of 80?
-			reaction, _ = await ctx.wait_for("raw_reaction_add", message=msg, reactions=reactions)
-			if str(reaction.emoji) == "\U000023ee\U0000fe0f":
+			payload = await ctx.wait_for("raw_reaction_add", message=msg, reactions=reactions)
+			if str(payload.emoji) == "\U000023ee\U0000fe0f":
 				current_page = 1
 				embed = self.gen_list(emojis, pages, current_page)
 				await msg.edit(embed=embed)
-			elif str(reaction.emoji) == "\U000023ea":
+			elif str(payload.emoji) == "\U000023ea":
 				if current_page - 1 < 1:
 					continue
 				current_page -= 1
 				embed = self.gen_list(emojis, pages, current_page)
 				await msg.edit(embed=embed)
-			elif str(reaction.emoji) == "\U000023e9":
+			elif str(payload.emoji) == "\U000023e9":
 				if current_page + 1 > pages:
 					continue
 				current_page += 1
 				embed = self.gen_list(emojis, pages, current_page)
 				await msg.edit(embed=embed)
-			elif str(reaction.emoji) == "\U000023ed\U0000fe0f":
+			elif str(payload.emoji) == "\U000023ed\U0000fe0f":
 				current_page = pages
 				embed = self.gen_list(emojis, pages, current_page)
 				await msg.edit(embed=embed)
