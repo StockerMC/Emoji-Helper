@@ -20,13 +20,10 @@ async def parse_command_args(name, emojis):
 	pass
 
 async def read_attachment(attachment):
-	image = {"image": await attachment.read(), "success": True}
+	image = await attachment.read()
 	size = len(image) / 1000 # bytes / 1000 = kilobytes
 	if size > 256:
-		try:
-			image = await compress_image(image)
-		except CantCompressImage:
-			image["success"] = False
+		image = await compress_image(image)
 
 	return image
 
