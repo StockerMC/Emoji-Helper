@@ -328,7 +328,7 @@ class Emojis(commands.Cog):
 		if not emojis:
 			return await ctx.send("Please specify a valid emoji type (all, animated or static)")
 		
-		file = await zip_emojis(emojis)
+		file = await self.bot.loop.run_in_executor(zip_emojis, emojis)
 		await ctx.send(file=discord.File(file, f"{ctx.guild.id}.zip"))
 
 	@commands.has_permissions(manage_emojis=True)
