@@ -1,9 +1,9 @@
 from discord.ext import commands
 
 async def change_emojify(guild, emojify, bot):
-	if emojify == bot.default_emojify_toggle:
-		bot.prefixes[guild] = emojify
-		return
+	# if emojify == bot.default_emojify_toggle:
+	# 	bot.prefixes[guild] = emojify
+	# 	return
 	
 	await bot.pool.execute("""
 		INSERT INTO emojify_toggles
