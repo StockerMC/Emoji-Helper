@@ -5,6 +5,7 @@ import aiohttp
 from utils.errors import *
 from . import database
 import traceback
+import sys
 
 class Help(commands.MinimalHelpCommand): ## make better help command
 	async def send_pages(self):
@@ -157,3 +158,11 @@ class Bot(commands.Bot):
 			
 			for page in paginator.pages:
 				await traceback_channel.send(page)
+
+	async def rr(self, event_method, *args, **kwargs):
+		lines = traceback.format_exception(*sys.exec_info())
+		paginator = commands.Paginator(prefix=f"<@{self.owner_id}>\n```")
+		[paginator.add_line(x) for x in ''.joirn(lines).split("\n")]
+		channel = self.get_channel(self.traceback_channel)
+		for page in paginator:
+			await channel.send(page)
