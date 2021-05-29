@@ -44,7 +44,7 @@ class Emojis(commands.Cog):
 	@commands.has_permissions(manage_emojis=True)
 	async def add(self, ctx, name=None, *emojis):  # *args, split by space
 		"""Add an emoji with a URL, emoji or file"""
-		if not emojis and name is None and not ctx.message.attachments:
+		if not emojis and not name and not ctx.message.attachments:
 			return await ctx.send("Enter the URL or attach a file of the emoji you would like to add\nExample: `e!add lol <URL|Attachment>`\nExample: `e!add :custom_emoji:`")
 
 		link_regex = r"(https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9()@:%_\+.~#?&//=]*)"
@@ -112,7 +112,7 @@ class Emojis(commands.Cog):
 
 			match = re.sub(r"(.*)(\.[a-zA-Z]+)", r"\1 \2", ctx.message.attachments[0].filename)
 
-			if name is None:
+			if not name:
 				name = match.split()[0]
 				if name == "":
 					return await ctx.send("Please provide a name or attach a file with a name")
@@ -154,7 +154,7 @@ class Emojis(commands.Cog):
 	@commands.has_permissions(manage_emojis=True)
 	async def remove(self, ctx, name=None):
 		"""Remove an emoji"""
-		if name is None:
+		if not name:
 			return await ctx.send("Please enter an emoji name to remove\nExample: `e!remove <Name|Emoji>`\nExample: `e!remove :custom_emoji:`")
 		emoji_regex = r"^<a?:(.+)?:(\d+)>$"
 		match = re.findall(emoji_regex, name)
@@ -198,9 +198,9 @@ class Emojis(commands.Cog):
 	@commands.has_permissions(manage_emojis=True)
 	async def rename(self, ctx, name=None, new_name=None):
 		"""Rename an emoji"""
-		if name is None:
+		if not name:
 			return await ctx.send("Enter the name of the emoji you would like to rename\nExample: `e!rename <Name|Emoji> <new name>`")
-		if new_name is None:
+		if not new_name:
 			return await ctx.send("Enter the name you would like to rename the emoji to\nExample: `e!rename <Name|Emoji> <new name>`")
 
 		emoji_regex = r"^<a?:(.+)?:(\d+)>$"
@@ -209,7 +209,7 @@ class Emojis(commands.Cog):
 			match = match[0]
 			emoji_id = match[1]
 			emoji = self.bot.get_emoji(int(emoji_id))
-			if emoji is None or emoji not in ctx.guild.emojis:
+			if not emoji or emoji not in ctx.guild.emojis:
 				return await ctx.send("This emoji does not exist")
 
 			await emoji.edit(name=new_name, reason=f"Renamed by {ctx.author} (ID: {ctx.author.id})")
@@ -337,7 +337,7 @@ class Emojis(commands.Cog):
 		"""Import emojis from a zip file URL or attachment"""
 		link_regex = r"(https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9()@:%_\+.~#?&//=]*.zip)"
 		
-		if URL is None:
+		if not URL:
 			match = None
 		else:
 			match = re.match(link_regex, URL)
