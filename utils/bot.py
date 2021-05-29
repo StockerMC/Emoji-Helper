@@ -140,7 +140,7 @@ class Bot(commands.Bot):
 			paginator = commands.Paginator()
 			[paginator.add_line(x) for x in ''.join(lines).split("\n")]
 			
-			await error_channel.send(f"Exception in command {ctx.command.name} by {ctx.author} \n{error}")
+			await error_channel.send(f"{f'Exception in command {ctx.command.name}' if ctx.command else ''} by {ctx.author} \n{error}")
 			
 			for page in paginator.pages:
 				await traceback_channel.send(page)
