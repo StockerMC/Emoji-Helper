@@ -16,7 +16,7 @@ class Misc(commands.Cog):
 	@commands.command(aliases=["emoji", "image"])
 	async def big(self, ctx, emoji=None):
 		"""Enlarges an emoji"""
-		if emoji is None:
+		if not emoji:
 			return await ctx.send("Enter the emoji you would like to enlarge\nExample: `e!big :emoji:`")
 		
 		emoji_regex = r"^<(a)?:(.+)?:(\d+)>$"
@@ -108,10 +108,8 @@ class Misc(commands.Cog):
 		if not state:
 			raise EmojifyDisabled()
 
-		if letters is None:
+		if not letters:
 			return await ctx.send("Enter the letters you would like to emojify\nExample: `e!emojify emoji helper`")
-		if letters == False:
-			return await ctx.send("You are not allowed to emojify that")
 		emoji_prefix = ":regional_indicator_"
 		# emoji_regex = r"^<?a?:.+?:\d+?>?$"
 		alphabet = "abcdefghijklmnopqrstuvwxyz"
@@ -152,7 +150,7 @@ Unfortunately, the **only **solution is to wait it out.""")
 	@commands.cooldown(1, 10, BucketType.user)
 	async def bug(self, ctx, *, message=None):
 		"""Report a bug/issue with the bot"""
-		if message is None:
+		if not message:
 			return await ctx.send("Please attach a message with the bug or issue you are experiencing.")
 		channel = self.bot.get_channel(self.bot.bug_channel)
 		embed = discord.Embed(title=f"Bug reported by {ctx.author}",color=0xd63636, description=message)
