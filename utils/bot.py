@@ -58,7 +58,7 @@ class Bot(commands.Bot):
 		self.bug_channel = 837717191871823892
 		self.guild_log_channel = 828809272573820999
 		self.success_emoji = "<:success:835736813929758740>"
-		self.error_emoji = "<:error:836034660932386816>"
+		self.error_emoji = "<:error:848053509201985577>"
 
 		return await super().start(*args, **kwargs)
 
