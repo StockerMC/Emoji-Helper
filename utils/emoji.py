@@ -19,11 +19,11 @@ async def fetch_emoji_image(url, bot):
 async def parse_command_args(name, emojis):
 	pass
 
-async def read_attachment(attachment):
+async def read_attachment(attachment, bot):
 	image = await attachment.read()
 	size = len(image) / 1000 # bytes / 1000 = kilobytes
 	if size > 256:
-		image = await compress_image(image)
+		image = await bot.loop.run_in_executor(None, compress_image, image)
 
 	return image
 

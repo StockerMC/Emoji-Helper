@@ -106,7 +106,7 @@ class Emojis(commands.Cog):
 
 		elif ctx.message.attachments:
 			try:
-				image = await read_attachment(ctx.message.attachments[0])
+				image = await read_attachment(ctx.message.attachments[0], self.bot)
 			except CantCompressImage:
 				return await ctx.send("Unable to compress the attachment")
 
