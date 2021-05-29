@@ -21,7 +21,7 @@ if not config["database"]["setup_completed"]:
 	import asyncio
 	from utils.database import setup
 	
-	asyncio.get_event_loop().run_until_complete(setup(config))
+	asyncio.run(setup(config))
 	config["database"]["setup_completed"] = True
 	with open("data/config.json", "w") as f:
 		json.dump(config, f, indent=4)
