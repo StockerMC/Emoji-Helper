@@ -1,10 +1,16 @@
 from discord.ext import commands
 
 async def change_prefix(guild, prefix, bot):
+	# if prefix == bot.default_prefix:
+		# bot.prefixes[guild] = prefix
+		# return
 	await bot.pool.execute("""
-		UPDATE prefixes
-		SET guild=$1, prefix=$2
-		WHERE guild=$1
+		INSERT INTO prefixes (prefix)
+		WHERE guild = $1
+		VALUES ($2)
+		ON CONFLICT
+		DO UPDATE
+		SET prefix=$2
 	""", guild, prefix)
 	bot.prefixes[guild] = prefix
 
