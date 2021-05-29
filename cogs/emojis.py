@@ -152,29 +152,38 @@ class Emojis(commands.Cog):
 
 	@commands.command(aliases=["delete", "del"])
 	@commands.has_permissions(manage_emojis=True)
-	async def remove(self, ctx, name=None):
+	async def remove(self, ctx, *emojis):
 		"""Remove an emoji"""
-		if not name:
+		if not emojis:
 			return await ctx.send("Please enter an emoji name to remove\nExample: `e!remove <Name|Emoji>`\nExample: `e!remove :custom_emoji:`")
-		emoji_regex = r"^<a?:(.+)?:(\d+)>$"
-		match = re.findall(emoji_regex, name)
-		if match:
-			match = match[0]
-			emoji_id = match[1]
-			emoji = await ctx.guild.fetch_emoji(int(emoji_id))
-			await emoji.delete(reason=f"Removed by {ctx.author} (ID: {ctx.author.id})")
-			await ctx.send(f"{name} successfully removed")
+		emoji_regex = r"^<a?:.+?:(\d+)>$"
+		matches = re.findall(emoji_regex, " ".join(emojis))
+		if len(matches) > 2:
+			await ctx.message.add_reaction("\U000025b6")
+		if matches:
+			for match in matches:
+				emoji_id = match[0]
+				emoji = await ctx.guild.fetch_emoji(int(emoji_id)) # replace with Guild.delete_custom_emoji if added
+				await emoji.delete(reason=f"Removed by {ctx.author} (ID: {ctx.author.id})")
+				await ctx.send(f"{str(emoji)} successfully removed")
+			
+			await ctx.message.remove_reaction("\U000025b6", ctx.me)
+			await ctx.message.add_reaction(self.bot.success_emoji)
 		else:
 			emojis_with_name = [
-				emoji for emoji in ctx.guild.emojis
-				if emoji.name.lower() == name.lower()
+				[
+					emoji for emoji in ctx.guild.emojis
+					if emoji.name.lower() == name.lower()
+				] for name in emojis
 			]
+
 			if len(emojis_with_name) == 0:
 				return await ctx.send("This emoji does not exist") # change?
+
 			if len(emojis_with_name) == 1:
 				emoji = emojis_with_name[0]
 				await emoji.delete(reason=f"Removed by {ctx.author} (ID: {ctx.author.id})")
-				return await ctx.send(f":{name}: successfully removed")
+				return await ctx.send(f"{emoji} successfully removed")
 
 			else:
 				msg = "Multiple emojis were found with that name.\nWhich emoji do you want to rename?\n"
@@ -188,7 +197,7 @@ class Emojis(commands.Cog):
 					try:
 						emoji = emojis_with_name[int(message.content) - 1]
 						await emoji.delete(reason=f"Removed by {ctx.author} (ID: {ctx.author.id})")
-						await ctx.send(f":{name}: successfully removed")
+						await ctx.send(f"{emoji} successfully removed")
 					except IndexError:
 						return await ctx.send("This emoji does not exist")
 				except asyncio.TimeoutError:
