@@ -5,12 +5,12 @@ async def change_prefix(guild, prefix, bot):
 		# bot.prefixes[guild] = prefix
 		# return
 	await bot.pool.execute("""
-		INSERT INTO prefixes (prefix)
+		INSERT INTO prefixes
 		WHERE guild = $1
-		VALUES ($2)
+		SET prefix = $2
 		ON CONFLICT
 		DO UPDATE
-		SET prefix=$2
+		SET prefix = $2
 	""", guild, prefix)
 	bot.prefixes[guild] = prefix
 
