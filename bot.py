@@ -27,7 +27,6 @@ if not config["database"]["setup_completed"]:
 		json.dump(config, f, indent=4)
 
 os.environ["JISHAKU_NO_DM_TRACEBACK"] = "True"
-os.environ["JISHAKU_NO_DM_TRACEBACK"] = "True" 
 os.environ["JISHAKU_HIDE"] = "True"
 
 bot = Bot(
