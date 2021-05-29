@@ -258,7 +258,7 @@ class Emojis(commands.Cog):
 
 		while True:
 			# reaction, user = await self.bot.wait_for("reaction_add", check=check) # timeout of 80?
-			reaction, _ = await ctx.wait_for("reaction_add", message=msg, reactions=reactions)
+			reaction, _ = await ctx.wait_for("raw_reaction_add", message=msg, reactions=reactions)
 			if str(reaction.emoji) == "\U000023ee\U0000fe0f":
 				current_page = 1
 				embed = self.gen_list(emojis, pages, current_page)
