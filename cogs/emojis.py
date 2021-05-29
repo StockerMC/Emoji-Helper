@@ -252,7 +252,7 @@ class Emojis(commands.Cog):
 		current_page = 1
 		embed = self.gen_list(emojis, pages, current_page)
 		msg = await ctx.send(embed=embed)
-		reactions = ["\U000023ee\U0000fe0f", "\U000023ea", "\U000023e9", "\U000025b6\U0000fe0f", "\U000023f9\U0000fe0f"]
+		reactions = ["\U000023ee\U0000fe0f", "\U000023ea", "\U000023e9", "\U000023ed\U0000fe0f", "\U000023f9\U0000fe0f"]
 		for reaction in reactions:
 			await msg.add_reaction(reaction)
 
@@ -275,13 +275,13 @@ class Emojis(commands.Cog):
 				current_page += 1
 				embed = self.gen_list(emojis, pages, current_page)
 				await msg.edit(embed=embed)
-			elif str(reaction.emoji) == "\U000025b6\U0000fe0f":
+			elif str(reaction.emoji) == "\U000023ed\U0000fe0f":
 				current_page = pages
 				embed = self.gen_list(emojis, pages, current_page)
 				await msg.edit(embed=embed)
 			else:
 				await msg.delete()
-				break
+				return
 
 	@commands.command(aliases=["addthese"])
 	@commands.has_permissions(manage_emojis=True)
