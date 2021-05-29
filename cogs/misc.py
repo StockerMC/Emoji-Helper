@@ -88,7 +88,7 @@ class Misc(commands.Cog):
 	@commands.command(aliases=["inv"])
 	async def invite(self, ctx):
 		"""Get the invite link for the bot"""
-		invite = discord.utils.oauth_url(self.bot.user.id, discord.Permissions(1074088960))
+		invite = discord.utils.oauth_url(self.bot.user.id, discord.Permissions(1073794112))
 		await ctx.send(f"<{invite}>")
 
 	@commands.command()
