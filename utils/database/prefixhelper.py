@@ -34,8 +34,6 @@ async def get_prefix(bot, message):
 async def get_guild_prefix(guild, bot): # fetching from database might be completely useless since prefixes are cached in get_prefix
 	prefix = bot.prefixes.get(guild)
 	if prefix is not None:
-		import json
-		json.dump
 		return prefix
 
 	prefix = await bot.pool.fetchval(
