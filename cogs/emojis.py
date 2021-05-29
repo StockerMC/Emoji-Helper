@@ -101,7 +101,7 @@ class Emojis(commands.Cog):
 				emoji = await ctx.guild.create_custom_emoji(name=name, image=image, reason=f"Added by {ctx.author} (ID: {ctx.author.id})")
 				await ctx.send(f"Emoji {emoji} successfully added{' as a GIF' if converted else ''}")
 			if len(matches) > 2:
-				await ctx.message.remove_reaction("\U000025b6")
+				await ctx.message.remove_reaction("\U000025b6", ctx.me)
 				await ctx.message.add_reaction("\U00002705")
 
 		elif ctx.message.attachments:
@@ -300,7 +300,7 @@ class Emojis(commands.Cog):
 				await ctx.send(str(e))
 				exceptions_raised += 1
 
-		await ctx.message.remove_reaction("\U000025b6")
+		await ctx.message.remove_reaction("\U000025b6", ctx.me)
 		if exceptions_raised == len(emojis):
 			await ctx.send("Could not add the emojis provided")
 			return await ctx.message.add_reaction(self.bot.error_emoji)
