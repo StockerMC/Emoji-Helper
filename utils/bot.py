@@ -26,17 +26,30 @@ class Context(commands.Context):
 				message.author == self.author
 				and message.channel == self.channel, timeout=timeout)
 		elif event == "reaction_add":
+			message = kwargs["message"]
+			message = getattr(message, "id", message)
 			reactions = kwargs.get("reactions")
 			if reactions:
 				return await self.bot.wait_for(event, check = lambda reaction, user:
-				reaction.message == kwargs.get("message")
+				reaction.message.id == message
 				and user == self.author
 				and str(reaction.emoji) in reactions, timeout=timeout)
 			else:
 				return await self.bot.wait_for(event, check = lambda reaction, user:
-				reaction.message == kwargs.get("message")
-				and user == self.author
-				and str(reaction.emoji), timeout=timeout)
+				reaction.message.id == message
+				and user == self.author, timeout=timeout)
+		elif event == "raw_reaction_add":
+			message = kwargs["message"].id
+			reactions = kwargs.get("reactions")
+			if reactions:
+				return await self.bot.wait_for(event, check = lambda payload:
+				payload.message_id == message
+				and payload.user_id == self.author.id
+				and str(payload.emoji) in reactions, timeout=timeout)
+			else:
+				return await self.bot.wait_for(event, check = lambda payload:
+				payload.message_id == message
+				and payload.user_id == self.author.id, timeout=timeout)
 
 class Bot(commands.Bot):
 	def __init__(self, *args, **kwargs):
