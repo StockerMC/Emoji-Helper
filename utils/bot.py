@@ -58,21 +58,24 @@ class Bot(commands.Bot):
 		super().__init__(*args, **kwargs)
 
 	async def start(self, *args, **kwargs):
+		self.session = aiohttp.ClientSession(loop=self.loop)
+		self.prefixes = {}
+		self.emojify_toggles = {}
+
 		self.postgres_config = self.config["database"]
 		del self.postgres_config["setup_completed"]
 		self.pool = await asyncpg.create_pool(**self.postgres_config)
-		self.prefixes = {}
-		self.emojify_toggles = {}
-		self.session = aiohttp.ClientSession(loop=self.loop)
-		self.default_prefix = "e!"
-		self.default_emojify_toggle = True
-		self.support_server = "https://discord.gg/nptFDCVPWX"
-		self.error_channel = 825852962784935956
-		self.traceback_channel = 847980078813282315
-		self.bug_channel = 837717191871823892
-		self.guild_log_channel = 828809272573820999
-		self.success_emoji = "<:success:835736813929758740>"
-		self.error_emoji = "<:error:848053509201985577>"
+		
+		self.bot_config = self.config["bot"]
+		self.default_prefix = self.bot_config["default_prefix"]
+		self.default_emojify_toggle = self.bot_config["default_emojify_toggle"]
+		self.support_server = self.bot_config["support_server"]
+		self.error_channel = self.bot_config["error_channel"]
+		self.traceback_channel = self.bot_config["traceback_channel"]
+		self.bug_channel = self.bot_config["bug_channel"]
+		self.guild_log_channel = self.bot_config["guild_log_channel"]
+		self.success_emoji = self.bot_config["success_emoji"]
+		self.error_emoji = self.bot_config["error_emoji"]
 
 		return await super().start(*args, **kwargs)
 
