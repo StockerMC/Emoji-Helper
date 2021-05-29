@@ -1,11 +1,18 @@
 from discord.ext import commands
 
 async def change_emojify(guild, emojify, bot):
+	if emojify == bot.default_emojify_toggle:
+		bot.prefixes[guild] = emojify
+		return
+	
 	await bot.pool.execute("""
-		UPDATE emojify_toggles
-		SET guild=$1, prefix=$2
-		WHERE guild=$1
+		INSERT INTO emojify_toggles
+		VALUES ($1, $2)
+		ON CONFLICT (guild)
+		DO UPDATE
+		SET emojify = $2
 	""", guild, emojify)
+	
 	bot.emojify_toggles[guild] = emojify
 
 async def get_emojify(guild, bot):	

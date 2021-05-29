@@ -1,9 +1,10 @@
 from discord.ext import commands
 
 async def change_prefix(guild, prefix, bot):
-	# if prefix == bot.default_prefix:
-		# bot.prefixes[guild] = prefix
-		# return
+	if prefix == bot.default_prefix:
+		bot.prefixes[guild] = prefix
+		return
+	
 	await bot.pool.execute("""
 		INSERT INTO prefixes
 		VALUES ($1, $2)
