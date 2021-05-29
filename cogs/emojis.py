@@ -154,6 +154,7 @@ class Emojis(commands.Cog):
 	@commands.has_permissions(manage_emojis=True)
 	async def remove(self, ctx, *emojis):
 		"""Remove an emoji"""
+		print(emojis)
 		if not emojis:
 			return await ctx.send("Please enter an emoji name to remove\nExample: `e!remove <Name|Emoji>`\nExample: `e!remove :custom_emoji:`")
 		emoji_regex = r"^<a?:.+?:(\d+)>$"
