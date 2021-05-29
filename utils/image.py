@@ -33,7 +33,7 @@ def compress_image(image_bytes):
 		print(kb_size)
 		retries += 1
 
-	return output.read()
+	return output.getvalue()
 
 # filename = "the-capsule.png"
 
