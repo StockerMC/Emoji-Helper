@@ -24,7 +24,7 @@ class Misc(commands.Cog):
 		# if match is None:
 		# 	return await ctx.send("Expected a custom emoji, got something else")
 		if match:
-			match = match[0]
+			# match = match[0]
 			animated = match.group("animated")
 			name = match.group("name")
 			emoji_id = match.group("id")
@@ -154,9 +154,38 @@ Unfortunately, the **only **solution is to wait it out.""")
 		if not message:
 			return await ctx.send("Please attach a message with the bug or issue you are experiencing.")
 		channel = self.bot.get_channel(self.bot.bug_channel)
-		embed = discord.Embed(title=f"Bug reported by {ctx.author}",color=0xd63636, description=message)
+		embed = discord.Embed(title=f"Bug reported by {ctx.author} ({ctx.author.id})", color=0xd63636, description=message)
+		embed.set_footer(text=f"ID: {len(self.bot.bug_reports) + 1}")
 		await channel.send(embed=embed)
-		await ctx.send(f"{self.bot.success_emoji} Bug successfully reported")
+		fallback_message = await ctx.send(f"{self.bot.success_emoji} Bug successfully reported")
+		self.bot.bug_reports[len(self.bot.bug_reports)] = {
+			"message": ctx.message,
+			"fallback_message": fallback_message,
+		}
+
+	@bug.command()
+	@commands.is_owner()
+	async def reply(self, ctx, id: int, *, message=None):
+		try:
+			bug_message = self.bot.bug_reports[id]["message"]
+			fallback_message = self.bot.bug_reports[id]["message"]
+		except KeyError:
+			embed = ctx.error("Could not find the bug report with the ID provided")
+			return await ctx.send(embed=embed)
+
+		reply_embed = discord.Embed(title=f"Reply from {ctx.author}", description=f"{message}\n\nNote: To continue this conversation, please friend {ctx.author} and message them.", color=self.bot.color)
+		
+		try:
+			await bug_message.reply(embed=reply_embed)
+		except (discord.NotFound, discord.Forbidden):
+			try:
+				await fallback_message.reply(embed=reply_embed)
+			except (discord.NotFound, discord.Forbidden):
+				embed = ctx.error("Unable to reply to the bug report")
+				return await ctx.send(embed=embed)
+
+		embed = discord.Embed(title=f"Successfully replied to the bug {id}", color=self.bot.color)
+		await ctx.send(embed=embed)
 
 def setup(bot):
     bot.add_cog(Misc(bot))
