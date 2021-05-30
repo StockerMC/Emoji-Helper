@@ -82,7 +82,7 @@ class Bot(commands.Bot):
 		self.bug_channel = self.bot_config["bug_channel"]
 		self.guild_log_channel = self.bot_config["guild_log_channel"]
 		self.success_emoji = "\U00002705"
-		self.error_emoji = "\U0000274c"
+		self.error_emoji = "<:error:848609436117368902>"
 
 		self.bug_reports = {}
 		self.color = 0xf9c94c
@@ -163,9 +163,6 @@ class Bot(commands.Bot):
 		elif isinstance(error, GuildEmojiAddRateLimited):
 			embed.description = "The guild was rate limited by discord for adding emojis. There is no set time for when this will expire."
 
-		# elif isinstance(error, NoEmojiSlots):
-		# 	embed.description = "Maximum number of "
-
 		elif match := re.match(r"Maximum number of(?P<animated> animated)? emojis reached \((?P<amount>\d+)\)", str(error)):
 			animated = match.group("animated")
 			amount = match.group("amount")
@@ -196,7 +193,7 @@ class Bot(commands.Bot):
 
 			lines = traceback.format_exception(type(error), error, error.__traceback__)
 
-			paginator = commands.Paginator()
+			paginator = commands.Paginator(prefix=f"<@{self.owner_id}>\n```")
 			[paginator.add_line(x) for x in ''.join(lines).split("\n")]
 			
 			await error_channel.send(f"{f'Exception in command `{ctx.command.name}`' if ctx.command else ''} by {ctx.author} \n{error}")
