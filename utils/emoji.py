@@ -57,9 +57,10 @@ async def add_emoji(guild, name, image, reason, format="static"):
 
 async def safe_add_emoji(create_emoji_coro): # sees if guild is rate limited
 	task = asyncio.create_task(create_emoji_coro)
+	task2 = asyncio.create_task(asyncio.sleep(6))
 	done, pending = await asyncio.wait({
-		asyncio.sleep(6),
-		task
+		task,
+		task2
 	}, return_when=asyncio.FIRST_COMPLETED)
 	
 	result = done.pop().result()
