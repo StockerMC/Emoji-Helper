@@ -172,7 +172,6 @@ class Emojis(commands.Cog):
 			await ctx.message.add_reaction("\U000025b6")
 		if matches:
 			for match in matches:
-				await ctx.send(f"`{match}`")
 				emoji_id = match
 				emoji = await ctx.guild.fetch_emoji(int(emoji_id)) # replace with Guild.delete_custom_emoji if added
 				await emoji.delete(reason=f"Removed by {ctx.author} (ID: {ctx.author.id})")
