@@ -16,7 +16,7 @@ async def change_prefix(guild, prefix, bot):
 
 async def get_prefix(bot, message):
 	if not message.guild:
-		return commands.when_mentioned_or(bot.default_prefixes)(bot, message)
+		return commands.when_mentioned_or(bot.default_prefix)(bot, message)
 	
 	prefix = bot.prefixes.get(message.guild.id)
 	if prefix:
