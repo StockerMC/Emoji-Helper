@@ -64,6 +64,7 @@ class Emojis(commands.Cog):
 			matches.append(re.findall(emoji_regex, name))
 		if len(emojis) > 0:
 			for emoji in emojis:
+				await ctx.send(emoji)
 				# matches += [re.findall(emoji_regex, emoji)]
 				matches.append(re.findall(emoji_regex, emoji))
 
