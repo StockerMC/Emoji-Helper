@@ -89,5 +89,21 @@ class Owner(commands.Cog):
 		result = await self.bot.pool.fetch(query.lstrip("```sql").rstrip("```"))
 		await ctx.send(f"```\n{result}```")
 
+	@commands.command(aliases=["usages"])
+	async def uses(self, ctx, command=None):
+		command = self.bot.get_command(command)
+		if not command:
+			embed = ctx.error("There is no command with that name")
+			return await ctx.send(embed=embed)
+
+		try:
+			uses = self.bot.command_uses[command]
+		except KeyError:
+			self.bot.command_uses[command] = 0
+			uses = 0
+
+		embed = discord.Embed(title=f"Command uses of the command `{command}`", description=f"{uses} use{'s' if uses != 1 else ''}", color=self.bot.color)
+		await ctx.send(embed=embed)
+
 def setup(bot):
 	bot.add_cog(Owner(bot))

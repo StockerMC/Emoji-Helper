@@ -84,6 +84,7 @@ class Bot(commands.Bot):
 		self.success_emoji = "\U00002705"
 		self.error_emoji = "<:error:848609436117368902>"
 
+		self.command_uses = {}
 		self.bug_reports = {}
 		self.color = 0xf9c94c
 
