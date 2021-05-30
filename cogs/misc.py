@@ -147,7 +147,7 @@ When this happens, it means that the guild you are trying to do that in is rate 
 
 Unfortunately, the **only **solution is to wait it out.""")
 
-	@commands.command()
+	@commands.group()
 	@commands.cooldown(1, 10, BucketType.user)
 	async def bug(self, ctx, *, message=None):
 		"""Report a bug/issue with the bot"""
