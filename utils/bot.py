@@ -204,7 +204,7 @@ class Bot(commands.Bot):
 			for page in paginator.pages:
 				await traceback_channel.send(page)
 
-			embed.description = f"An unknown error happenedn:\n\n```{str(error)}```\n\nIf this error persists, please report it with the `{ctx.prefix}bug` command"
+			embed.description = f"An unknown error happened:\n\n```{str(error)}```\n\nIf this error persists, please report it with the `{ctx.prefix}bug` command"
 		
 		embed.timestamp = datetime.utcnow()
 		await ctx.send(embed=embed)
