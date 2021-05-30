@@ -16,3 +16,11 @@ class CantCompressImage(Exception):
 class NoEmojiSlots(Exception):
 	"""The guild is out of emoji slots"""
 	pass
+
+class EmptyAttachmentName(Exception):
+	"""The attachment did not have a name and no name was provided"""
+	pass
+
+class NoCustomEmoji(Exception):
+	"""No custom emojis were provided"""
+	pass
