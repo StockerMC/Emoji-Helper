@@ -48,7 +48,7 @@ class Emojis(commands.Cog):
 			return await ctx.send("Enter the URL or attach a file of the emoji you would like to add\nExample: `e!add lol <URL|Attachment>`\nExample: `e!add :custom_emoji:`")
 
 		link_regex = r"(https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9()@:%_\+.~#?&//=]*)"
-		emoji_regex = r"^<(a)?:(.+)?:(\d+)>$" #(\w{2,32}):(\d{17,19})
+		emoji_regex = r"<(?P<animated>a?):(?P<name>[a-zA-Z0-9_]{2,32}):(?P<id>[0-9]{18,22})>"
 
 		# if emoji is not None:
 		# 	match = re.findall(emoji_regex, emoji)
@@ -73,9 +73,9 @@ class Emojis(commands.Cog):
 				# if not match:
 				# 	continue
 				match = match[0]
-				animated = match[0]
-				name = match[1]
-				emoji_id = match[2]
+				animated = match.group("animated")
+				name = match.group("name")
+				emoji_id = match.group("id")
 
 				url = get_emoji_url(emoji_id, animated)
 				try:
@@ -150,13 +150,13 @@ class Emojis(commands.Cog):
 		print(emojis)
 		if not emojis:
 			return await ctx.send("Please enter an emoji name to remove\nExample: `e!remove <Name|Emoji>`\nExample: `e!remove :custom_emoji:`")
-		emoji_regex = r"^<a?:.+?:(\d+)>$"
+		emoji_regex = r"<a?:[a-zA-Z0-9_]{2,32}:(?P<id>[0-9]{18,22})>"
 		matches = re.findall(emoji_regex, " ".join(emojis))
 		if len(matches) > 2:
 			await ctx.message.add_reaction("\U000025b6")
 		if matches:
 			for match in matches:
-				emoji_id = match#[0]
+				emoji_id = match.group("id")
 				emoji = await ctx.guild.fetch_emoji(int(emoji_id)) # replace with Guild.delete_custom_emoji if added
 				await emoji.delete(reason=f"Removed by {ctx.author} (ID: {ctx.author.id})")
 				await ctx.send(f"{str(emoji)} successfully removed")
@@ -206,11 +206,10 @@ class Emojis(commands.Cog):
 		if not new_name:
 			return await ctx.send("Enter the name you would like to rename the emoji to\nExample: `e!rename <Name|Emoji> <new name>`")
 
-		emoji_regex = r"^<a?:(.+)?:(\d+)>$"
+		emoji_regex = r"<a?:[a-zA-Z0-9_]{2,32}:(?P<id>[0-9]{18,22})>"
 		match = re.findall(emoji_regex, name)
 		if match:
-			match = match[0]
-			emoji_id = match[1]
+			emoji_id = match.group("id")
 			emoji = self.bot.get_emoji(int(emoji_id))
 			if not emoji or emoji not in ctx.guild.emojis:
 				return await ctx.send("This emoji does not exist")
