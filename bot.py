@@ -43,8 +43,7 @@ bot = Bot(
 bot.help_command = Help(sort_commands=True)
 
 @bot.event
-async def on_commnad(ctx):
-	print(1)
+async def on_command(ctx):
 	embed = discord.Embed(title=f"`{ctx.command}`", color=bot.color)
 	embed.add_field(name="Author", value=f"{ctx.author} ({ctx.author.id})")
 	embed.add_field(name="Guild", value=f"{ctx.guild} ({ctx.guild.id})")
