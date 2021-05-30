@@ -96,7 +96,7 @@ class Emojis(commands.Cog):
 				# 	image = await bot.loop.run_in_executor(None, convert_to_gif, image)
 				# 	converted = True
 
-				emoji = await ctx.guild.create_custom_emoji(name=name, image=image, reason=f"Added by {ctx.author} (ID: {ctx.author.id})")
+				emoji = await safe_add_emoji(ctx.guild.create_custom_emoji(name=name, image=image, reason=f"Added by {ctx.author} (ID: {ctx.author.id})"))
 				await ctx.send(f"Emoji {emoji} successfully added{' as a GIF' if converted else ''}")
 			if len(matches) > 2:
 				await ctx.message.remove_reaction("\U000025b6", ctx.me)
@@ -121,7 +121,7 @@ class Emojis(commands.Cog):
 				# 	image = await bot.loop.run_in_executor(None, convert_to_gif, image)
 				# 	converted = True
 
-			emoji = await ctx.guild.create_custom_emoji(name=name, image=image, reason=f"Added by {ctx.author} (ID: {ctx.author.id})")
+			emoji = await safe_add_emoji(ctx.guild.create_custom_emoji(name=name, image=image, reason=f"Added by {ctx.author} (ID: {ctx.author.id})"))
 			await ctx.send(f"Emoji {emoji} successfully added{' as a GIF' if converted else ''}")
 
 		else:
@@ -149,7 +149,7 @@ class Emojis(commands.Cog):
 			# 	image = await bot.loop.run_in_executor(None, convert_to_gif, image)
 			# 	converted = True
 
-			emoji = await ctx.guild.create_custom_emoji(name=name, image=image, reason=f"Added by {ctx.author} (ID: {ctx.author.id})")
+			emoji = await safe_add_emoji(ctx.guild.create_custom_emoji(name=name, image=image, reason=f"Added by {ctx.author} (ID: {ctx.author.id})"))
 			await ctx.send(f"Emoji {emoji} successfully added{' as a GIF' if converted else ''}")
 
 	@commands.command(aliases=["delete", "del"])
@@ -374,7 +374,7 @@ class Emojis(commands.Cog):
 			# 	emoji["image"] = await bot.loop.run_in_executor(None, convert_to_gif, emoji["image"])
 			# 	converted = True
 
-			emoji = await ctx.guild.create_custom_emoji(name=emoji["name"], image=emoji["image"], reason=f"Added by {ctx.author} (ID: {ctx.author.id})")
+			emoji = await safe_add_emoji(ctx.guild.create_custom_emoji(name=emoji["name"], image=emoji["image"], reason=f"Added by {ctx.author} (ID: {ctx.author.id})"))
 			await ctx.send(f"Emoji {emoji} successfully added{' as a GIF' if converted else ''}")
 
 	@commands.command()
