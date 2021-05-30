@@ -55,6 +55,8 @@ async def add_emoji(guild, name, image, reason, format="static"):
 	except discord.HTTPException:
 		raise NoEmojiSlots
 
+from typing import Coroutine
+
 async def safe_add_emoji(create_emoji_coro): # sees if guild is rate limited
 	task = asyncio.create_task(create_emoji_coro)
 	task2 = asyncio.create_task(asyncio.sleep(6))
@@ -79,4 +81,3 @@ async def safe_add_emoji(create_emoji_coro): # sees if guild is rate limited
 # 		"image": _bytes_to_base64_data(image),
 # 		"roles": []
 # 	}
-
