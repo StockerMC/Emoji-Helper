@@ -187,5 +187,21 @@ Unfortunately, the **only **solution is to wait it out.""")
 		embed = discord.Embed(title=f"Successfully replied to the bug with the ID `{id}`", color=self.bot.color)
 		await ctx.send(embed=embed)
 
+	@bug.comamnd()
+	async def clear(self, ctx, id: int=None):
+		if id:
+			try:
+				del self.bot.bug_reports[id - 1]
+			except KeyError:
+				embed = ctx.error("Could not find the bug report with the ID provided")
+				return await ctx.send(embed=embed)
+
+		else:
+			del self.bot.bug_reports
+			self.bot.bug_reports = {}
+		
+		embed = discord.Embed(title=f"Successfully cleared {'all bug reports from the cache' if not id else f'the bug report with the ID `{id}`'}", color=self.bot.color)
+		await ctx.send(embed=embed)
+
 def setup(bot):
     bot.add_cog(Misc(bot))
