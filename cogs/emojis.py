@@ -64,7 +64,7 @@ class Emojis(commands.Cog):
 				# matches += [re.findall(emoji_regex, emoji)]
 				matches.append(re.findall(emoji_regex, emoji))
 
-		matches = [match for match in matches if match[0]]
+		matches = [match for match in matches if match]
 
 		if matches:
 			if len(matches) > 2:
