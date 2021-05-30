@@ -121,6 +121,7 @@ class Bot(commands.Bot):
 		return perm.replace('_', ' ').title()
 
 	async def on_command_error(self, ctx, error): ## fix error handling
+		await ctx.send(1)
 		error = getattr(error, "original", error)
 
 		if ctx.command.name == "add" and not isinstance(commands.CommandOnCooldown):
