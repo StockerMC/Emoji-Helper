@@ -306,7 +306,7 @@ class Emojis(commands.Cog):
 		await ctx.message.add_reaction("\U000025b6")
 		for emoji in emojis:
 			try:
-				await ctx.invoke(self.add, emoji.name, (str(emoji.url)))
+				await ctx.invoke(self.add, emoji.name, str(emoji.url))
 			except discord.HTTPException as e:
 				await ctx.send(str(e))
 				exceptions_raised += 1
