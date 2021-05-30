@@ -43,7 +43,7 @@ def guild_has_emoji_slots(guild, format):
 
 	return True
 
-async def add_emoji(guild, name, image, reason, format="all"):
+async def add_emoji(guild, name, image, reason, format="static"):
 	if not guild_has_emoji_slots(guild, format):
 		raise NoEmojiSlots
 
