@@ -6,7 +6,7 @@ import asyncio
 import discord
 from utils.zip import * # zip_emojis, fetch_zip_url
 from utils.emoji import * # fetch_emoji_image, get_emoji_url, read_attachment
-from utils.errors import CantCompressImage
+from utils.errors import EmptyAttachmentName
 
 class Emojis(commands.Cog):
 	def __init__(self, bot):
@@ -41,11 +41,14 @@ class Emojis(commands.Cog):
 		return embed
 
 	@commands.command(aliases=["steal"])
+	@commands.cooldown(50, 3600, commands.BucketType.guild)
 	@commands.has_permissions(manage_emojis=True)
 	async def add(self, ctx, name=None, *emojis):  # *args, split by space
 		"""Add an emoji with a URL, emoji or file"""
 		if not emojis and not name and not ctx.message.attachments:
-			return await ctx.send("Enter the URL or attach a file of the emoji you would like to add\nExample: `e!add lol <URL|Attachment>`\nExample: `e!add :custom_emoji:`")
+			ctx.command.reset_cooldown(ctx)
+			embed = ctx.error("Enter the URL or attach a file of the emoji you would like to add\nExample: `e!add lol <URL|Attachment>`\nExample: `e!add :custom_emoji:`")
+			return await ctx.send(embed=embed)
 
 		link_regex = r"(https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9()@:%_\+.~#?&//=]*)"
 		emoji_regex = r"<(?P<animated>a?):(?P<name>[a-zA-Z0-9_]{2,32}):(?P<id>[0-9]{18,22})>"
@@ -72,18 +75,20 @@ class Emojis(commands.Cog):
 			for match in matches:
 				# if not match:
 				# 	continue
-				match = match[0]
+				# match = match[0]
 				animated = match.group("animated")
 				name = match.group("name")
 				emoji_id = match.group("id")
 
 				url = get_emoji_url(emoji_id, animated)
-				try:
-					image = await fetch_emoji_image(url, self.bot)
-				except AssertionError:
-					return await ctx.send("Could not find that URL")
-				except URLNotImage:
-					return await ctx.send("Could not get an image from that URL")
+				# try:
+				image = await fetch_emoji_image(url, self.bot)
+				# except Exception as e:
+				# 	if isinstance(e, AssertionError):
+				# 		await ctx.send("Could not find that URL")
+				# 	elif isinstance(e, URLNotImage):
+				# 		await ctx.send("Could not get an image from that URL")
+					
 
 				converted = False
 				# if not animated and static_emojis >= emoji_limit and animated_emojis < emoji_limit:
@@ -98,17 +103,17 @@ class Emojis(commands.Cog):
 				await ctx.message.add_reaction("\U00002705")
 
 		elif ctx.message.attachments:
-			try:
-				image = await read_attachment(ctx.message.attachments[0], self.bot)
-			except CantCompressImage:
-				return await ctx.send("Unable to compress the attachment")
+			# try:
+			image = await read_attachment(ctx.message.attachments[0], self.bot)
+			# except CantCompressImage:
+			# 	return await ctx.send("Unable to compress the attachment")
 
 			match = re.sub(r"(.*)(\.[a-zA-Z]+)", r"\1 \2", ctx.message.attachments[0].filename)
 
 			if not name:
 				name = match.split()[0]
 				if name == "":
-					return await ctx.send("Please provide a name or attach a file with a name")
+					raise EmptyAttachmentName
 			converted = False
 			# try:
 
@@ -122,18 +127,22 @@ class Emojis(commands.Cog):
 		else:
 			try:
 				match = re.match(link_regex, emojis[0])
-			except (TypeError, IndexError):
-				return await ctx.send("Expected a custom emoji, got something else.")
+			except TypeError:
+				embed = ctx.error("Expected a custom emoji, got something else.")
+				return await ctx.send(embed=embed)
 			if not match:
-				return await ctx.send("Please provide a valid image type (PNG, JPG or GIF)")
+				embed = ctx.error("Please provide a valid image type (PNG, JPG or GIF)")
+				return await ctx.send(embed=embed)
 			url = match.group()
 			
 			try:
 				image = await fetch_emoji_image(url, self.bot)
 			except AssertionError:
-				return await ctx.send("Could not find that URL") 
+				embed = ctx.error("Could not find that URL")
+				return await ctx.send(embed=embed) 
 			except URLNotImage:
-				return await ctx.send("Could not get an image from that URL")
+				embed = ctx.error("Could not get an image from that URL")
+				return await ctx.send(embed=embed)
 
 			converted = False
 			# if static_emojis >= emoji_limit and animated_emojis < emoji_limit:
@@ -240,7 +249,8 @@ class Emojis(commands.Cog):
 						await emoji.edit(name=new_name, reason=f"Renamed by {ctx.author} (ID: {ctx.author.id})")
 						await ctx.send(fr"{emoji} successfully renamed to \:{new_name}:")
 					except IndexError:
-						return await ctx.send("This emoji does not exist")
+						embed = ctx.error("This emoji does not exist")
+						return await ctx.send(embed=embed)
 				except asyncio.TimeoutError:
 					return await msg.edit(content="This message has expired")  #change
 
@@ -282,8 +292,7 @@ class Emojis(commands.Cog):
 				embed = self.gen_list(emojis, pages, current_page)
 				await msg.edit(embed=embed)
 			else:
-				await msg.delete()
-				return
+				return await msg.delete()
 
 	@commands.command(aliases=["addthese"])
 	@commands.has_permissions(manage_emojis=True)
@@ -347,10 +356,7 @@ class Emojis(commands.Cog):
 		if not ctx.message.attachments and (not URL or not match):
 			return await ctx.send("Please attach a zip file or URL of a zip file with emojis you would like to add to the guild")
 		if match:
-			try:
-				file_bytes = await fetch_zip_url(URL, self.bot)
-			except AssertionError:
-				return await ctx.send("Could not find that URL")
+			file_bytes = await fetch_zip_url(URL, self.bot)
 		else:
 			file_bytes = await ctx.message.attachments[0].read()
 
@@ -377,27 +383,31 @@ class Emojis(commands.Cog):
 		# if not emojis:
 		# 	return await ctx.send("Please specify a valid emoji type (all, animated or static)")
 		if emoji_type not in ["all", "static", "animated"]:
-			return await ctx.send("Please specify a valid emoji type (all, animated or static)")
+			embed = ctx.error("Please specify a valid emoji type (all, animated or static)")
+			return await ctx.send(embed=embed)
+
+		embed = discord.Embed(title=f"Emoji stats for {ctx.guild}", color=self.bot.color)
 
 		emoji_limit = ctx.guild.emoji_limit
 		static_emojis = len([emoji for emoji in ctx.guild.emojis if not emoji.animated])
 		animated_emojis = len([emoji for emoji in ctx.guild.emojis if emoji.animated])
+		
 		if emoji_type == "all":
-			await ctx.send(f"""Static Emojis: **{static_emojis} / {emoji_limit}** ({round(static_emojis / emoji_limit, 2) * 100}%) | {emoji_limit - static_emojis} slot{'s' if emoji_limit - static_emojis != 1 else ''} available
-		
-Animated Emojis: **{animated_emojis} / {emoji_limit}** ({round(animated_emojis / emoji_limit, 2) * 100}%) | {emoji_limit - animated_emojis} slot{'s' if emoji_limit - animated_emojis != 1 else ''} available
-		
-Total Emojis: **{static_emojis + animated_emojis} / {emoji_limit * 2}** ({round(round((static_emojis + animated_emojis) / (emoji_limit * 2), 2) * 100, 2)}%) | {emoji_limit * 2 - (static_emojis + animated_emojis)} slot{'s' if emoji_limit * 2 - (static_emojis + animated_emojis) != 1 else ''} available""")
+			embed.add_field(name="Static Emojis", value=f"{static_emojis} / {emoji_limit}** ({round(static_emojis / emoji_limit, 2) * 100}%) | {emoji_limit - static_emojis} slot{'s' if emoji_limit - static_emojis != 1 else ''} available")
+			embed.add_field(name="Animated Emojis", value=f"{animated_emojis} / {emoji_limit}** ({round(animated_emojis / emoji_limit, 2) * 100}%) | {emoji_limit - animated_emojis} slot{'s' if emoji_limit - animated_emojis != 1 else ''} available")
+			embed.add_field("Total Emojis", value=f"{static_emojis + animated_emojis} / {emoji_limit * 2}** ({round(round((static_emojis + animated_emojis) / (emoji_limit * 2), 2) * 100, 2)}%) | {emoji_limit * 2 - (static_emojis + animated_emojis)} slot{'s' if emoji_limit * 2 - (static_emojis + animated_emojis) != 1 else ''} available")
 		elif emoji_type == "static":
-			await ctx.send(f"Static Emojis: **{static_emojis} / {emoji_limit}** ({round(static_emojis / emoji_limit, 2) * 100}%) | {emoji_limit - static_emojis} slot{'s' if emoji_limit - static_emojis != 1 else ''} available")
+			embed.add_field(name="Static Emojis", value=f"{static_emojis} / {emoji_limit}** ({round(static_emojis / emoji_limit, 2) * 100}%) | {emoji_limit - static_emojis} slot{'s' if emoji_limit - static_emojis != 1 else ''} available")
 		elif emoji_type == "animated":
-			await ctx.send(f"Animated Emojis: **{animated_emojis} / {emoji_limit}** ({round(animated_emojis / emoji_limit, 2) * 100}%) | {emoji_limit - animated_emojis} slot{'s' if emoji_limit - animated_emojis != 1 else ''} available")
+			embed.add_field(name="Animated Emojis", value=f"{animated_emojis} / {emoji_limit}** ({round(animated_emojis / emoji_limit, 2) * 100}%) | {emoji_limit - animated_emojis} slot{'s' if emoji_limit - animated_emojis != 1 else ''} available")
+		
+		await ctx.send(embed=embed)
 
-	@commands.command(hidden=True)
-	@commands.is_owner()
-	async def removeall(self, ctx, name):
-		for emoji in [emoji for emoji in ctx.guild.emojis if emoji.name.lower() == name]:
-			await self.remove(ctx, str(emoji))
+	# @commands.command(hidden=True)
+	# @commands.is_owner()
+	# async def removeall(self, ctx, name):
+	# 	for emoji in [emoji for emoji in ctx.guild.emojis if emoji.name.lower() == name]:
+	# 		await self.remove(ctx, str(emoji))
 
 def setup(bot):
     bot.add_cog(Emojis(bot))
