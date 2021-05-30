@@ -32,10 +32,7 @@ async def get_emojify(guild, bot):
 
 async def toggle_emojify(guild, bot):
 	emojify = await get_emojify(guild, bot)
-	if emojify:
-		await change_emojify(guild, False, bot)
-	else:
-		await change_emojify(guild, True, bot)
+	await change_emojify(guild, not emojify, bot)
 
 async def delete_emojify(guild, bot):
 	await bot.pool.execute("""DELETE FROM emojify_toggles WHERE guild = $1""", guild)
