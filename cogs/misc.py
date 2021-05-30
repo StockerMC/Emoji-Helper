@@ -184,7 +184,7 @@ Unfortunately, the **only **solution is to wait it out.""")
 				embed = ctx.error("Unable to reply to the bug report")
 				return await ctx.send(embed=embed)
 
-		embed = discord.Embed(title=f"Successfully replied to the bug {id}", color=self.bot.color)
+		embed = discord.Embed(title=f"Successfully replied to the bug with the ID `{id}`", color=self.bot.color)
 		await ctx.send(embed=embed)
 
 def setup(bot):
