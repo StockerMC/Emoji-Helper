@@ -186,7 +186,7 @@ Unfortunately, the **only **solution is to wait it out.""")
 		embed = discord.Embed(title=f"Successfully replied to the bug with the ID `{id}`", color=self.bot.color)
 		await ctx.send(embed=embed)
 
-	@bug.comamnd()
+	@bug.command()
 	async def clear(self, ctx, id: int=None):
 		if id:
 			try:
