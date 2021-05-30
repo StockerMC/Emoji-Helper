@@ -1,7 +1,10 @@
 import aiohttp
-from .errors import URLNotImage, CantCompressImage, NoEmojiSlots
+from .errors import URLNotImage, GuildEmojiAddRateLimited, NoEmojiSlots
 from .image import compress_image
 import discord
+import asyncio
+from .bot import Bot
+from discord.utils import _bytes_to_base64_data
 
 def get_emoji_url(emoji_id, animated):
 	return f"https://cdn.discordapp.com/emojis/{emoji_id}.{'gif' if animated else 'png'}?v=1"
@@ -51,3 +54,27 @@ async def add_emoji(guild, name, image, reason, format="static"):
 		await guild.create_custom_emoji(name=name, image=image, reason=reason)
 	except discord.HTTPException:
 		raise NoEmojiSlots
+
+async def safe_add_emoji(create_emoji_coro): # sees if guild is rate limited
+	done, pending = await asyncio.wait([
+		asyncio.sleep(6),
+		create_emoji_coro
+	], return_when=asyncio.FIRST_COMPLETED)
+	
+	result = done.pop().result()
+	if not result: # if the sleep returned first
+		raise GuildEmojiAddRateLimited
+
+	for future in pending:
+		future.cancel()
+
+	return result
+
+# async def add_emoji_api_request(bot, guild, image, name, reason):
+# 	# async with bot.__session
+# 	payload = {
+# 		"name": name,
+# 		"image": _bytes_to_base64_data(image),
+# 		"roles": []
+# 	}
+

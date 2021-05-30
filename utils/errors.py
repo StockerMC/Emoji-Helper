@@ -24,3 +24,6 @@ class EmptyAttachmentName(Exception):
 class NoCustomEmoji(Exception):
 	"""No custom emojis were provided"""
 	pass
+
+class GuildEmojiAddRateLimited(Exception):
+	"""The guild is rate limited for adding emojis without being on cooldown"""
