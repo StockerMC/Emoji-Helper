@@ -128,7 +128,6 @@ class Misc(commands.Cog):
 			else:
 				msg += f"{letter} "
 		
-		#msg = " ".join([f"{'{}{}:'.format((emoji_prefix, letter.lower()) if letter.lower() is not in list(punctuation) else (letter.lower())) if letter != ' ' else '  '}" for letter in letters])
 		await ctx.send(msg, allowed_mentions=discord.AllowedMentions.none())
 
 	@emojify.command()
