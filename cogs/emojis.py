@@ -306,7 +306,7 @@ class Emojis(commands.Cog):
 		await ctx.message.add_reaction("\U000025b6")
 		for emoji in emojis:
 			try:
-				await self.add(ctx, name=emoji.name, emojis=(str(emoji.url),))
+				await self.add(ctx, emoji.name, (str(emoji.url),))
 			except discord.HTTPException as e:
 				await ctx.send(str(e))
 				exceptions_raised += 1
@@ -329,7 +329,7 @@ class Emojis(commands.Cog):
 			return await ctx.send("Enter the emojis you would like to remove separated by a space\nExample: `e!removemultiple :emoji1: :emoji2:`")
 
 		for emoji in emojis:
-			await self.remove(ctx, emojis=(str(emoji),))
+			await self.remove(ctx, (str(emoji),))
 
 	@commands.has_permissions(manage_emojis=True)
 	@commands.command(aliases=["zip"])
