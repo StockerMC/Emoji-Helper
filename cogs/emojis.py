@@ -81,7 +81,6 @@ class Emojis(commands.Cog):
 				await ctx.message.add_reaction("\U000025b6")
 
 			for i, match in enumerate(matches):
-				await ctx.send(match)
 				# if not match:
 				# 	continue
 				match = match[0]
