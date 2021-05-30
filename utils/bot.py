@@ -207,7 +207,7 @@ class Bot(commands.Bot):
 		await ctx.send(embed=embed)
 
 	async def on_error(self, event_method, *args, **kwargs):
-		lines = traceback.format_exception(*sys.exec_info())
+		lines = traceback.format_exception(*sys.exc_info())
 		paginator = commands.Paginator(prefix=f"<@{self.owner_id}>\n```")
 		[paginator.add_line(x) for x in ''.joirn(lines).split("\n")]
 		channel = self.get_channel(self.traceback_channel)
