@@ -79,12 +79,16 @@ class Emojis(commands.Cog):
 		if matches:
 			if len(matches) > 2:
 				await ctx.message.add_reaction("\U000025b6")
-			for match in matches:
+
+			for i, match in enumerate(matches):
 				# if not match:
 				# 	continue
 				match = match[0]
 				animated = match[0]
-				name = match[1]
+				if i == 0:
+					name = name or match[1]
+				else:
+					name = match[1]
 				emoji_id = match[2]
 
 				url = get_emoji_url(emoji_id, animated)
