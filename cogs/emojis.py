@@ -54,13 +54,6 @@ class Emojis(commands.Cog):
 		# 	match = re.findall(emoji_regex, emoji)
 		# else:
 		# 	match = None
-
-		def is_not_none(el):
-			try:
-				# return el is not None and el[0] is not None
-				return bool(el[0])
-			except IndexError:
-				return False
 		
 		matches = []
 
@@ -71,7 +64,7 @@ class Emojis(commands.Cog):
 				# matches += [re.findall(emoji_regex, emoji)]
 				matches.append(re.findall(emoji_regex, emoji))
 
-		matches = list(filter(is_not_none, matches))
+		matches = [match for match in matches if match[0]]
 
 		if matches:
 			if len(matches) > 2:
