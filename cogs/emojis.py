@@ -67,7 +67,9 @@ class Emojis(commands.Cog):
 				# matches += [re.findall(emoji_regex, emoji)]
 				matches.append(re.findall(emoji_regex, emoji))
 
+		await ctx.send(matches)
 		matches = [match for match in matches if match]
+		await ctx.send(matches)
 
 		if matches:
 			if len(matches) > 2:
