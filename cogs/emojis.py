@@ -64,7 +64,6 @@ class Emojis(commands.Cog):
 			matches.append(re.findall(emoji_regex, name))
 		if len(emojis) > 0:
 			for emoji in emojis:
-				await ctx.send(emoji)
 				# matches += [re.findall(emoji_regex, emoji)]
 				matches.append(re.findall(emoji_regex, emoji))
 
@@ -307,7 +306,7 @@ class Emojis(commands.Cog):
 		await ctx.message.add_reaction("\U000025b6")
 		for emoji in emojis:
 			try:
-				await ctx.invoke(self.add, emoji.name, (str(emoji.url),))
+				await ctx.invoke(self.add, emoji.name, (str(emoji.url)))
 			except discord.HTTPException as e:
 				await ctx.send(str(e))
 				exceptions_raised += 1
