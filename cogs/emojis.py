@@ -185,7 +185,7 @@ class Emojis(commands.Cog):
 					emoji for emoji in ctx.guild.emojis
 					if emoji.name.lower() == name.lower()
 				] for name in emojis
-			]
+			][0]
 
 			if len(emojis_with_name) == 0:
 				return await ctx.send("This emoji does not exist") # change?
