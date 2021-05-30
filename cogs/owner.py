@@ -91,6 +91,15 @@ class Owner(commands.Cog):
 
 	@commands.command(aliases=["usages"])
 	async def uses(self, ctx, command=None):
+		
+		embed = discord.Embed(color=self.bot.color)
+		if not command:
+			embed.title = "Command uses of all commands"
+			for name, uses in self.bot.command_uses.items():
+				embed.add_field(name=name, value=f"{uses} use{'s' if uses != 1 else ''}")
+
+			return await ctx.send(embed=embed)
+
 		command = self.bot.get_command(command)
 		if not command:
 			embed = ctx.error("There is no command with that name")
