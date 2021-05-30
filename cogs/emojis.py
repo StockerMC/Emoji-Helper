@@ -67,9 +67,7 @@ class Emojis(commands.Cog):
 				# matches += [re.findall(emoji_regex, emoji)]
 				matches.append(re.findall(emoji_regex, emoji))
 
-		await ctx.send(matches)
-		matches = [match for match in matches if match]
-		await ctx.send(matches)
+		matches = [match for match in matches if match[0]]
 
 		if matches:
 			if len(matches) > 2:
@@ -77,10 +75,10 @@ class Emojis(commands.Cog):
 			for match in matches:
 				# if not match:
 				# 	continue
-				# match = match[0]
-				animated = match.group("animated")
-				name = match.group("name")
-				emoji_id = match.group("id")
+				match = match[0]
+				animated = match[0]
+				name = match[1]
+				emoji_id = match[2]
 
 				url = get_emoji_url(emoji_id, animated)
 				# try:
