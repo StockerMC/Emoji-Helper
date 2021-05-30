@@ -167,8 +167,8 @@ Unfortunately, the **only **solution is to wait it out.""")
 	@commands.is_owner()
 	async def reply(self, ctx, id: int, *, message=None):
 		try:
-			bug_message = self.bot.bug_reports[id]["message"]
-			fallback_message = self.bot.bug_reports[id]["message"]
+			bug_message = self.bot.bug_reports[id - 1]["message"]
+			fallback_message = self.bot.bug_reports[id - 1]["message"]
 		except KeyError:
 			embed = ctx.error("Could not find the bug report with the ID provided")
 			return await ctx.send(embed=embed)
