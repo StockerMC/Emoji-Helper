@@ -58,16 +58,23 @@ class Emojis(commands.Cog):
 		# else:
 		# 	match = None
 		
+		temp = []
 		matches = []
 
 		if name is not None:
-			matches.append(re.findall(emoji_regex, name))
+			temp.append(re.findall(emoji_regex, name))
 		if len(emojis) > 0:
 			for emoji in emojis:
 				# matches += [re.findall(emoji_regex, emoji)]
-				matches.append(re.findall(emoji_regex, emoji))
+				temp.append(re.findall(emoji_regex, emoji))
 
-		matches = [match for match in matches if match[0]]
+		for match in temp:
+			try:
+				if match[0]:
+					matches.append(match)
+			except IndexError:
+				pass
+			
 
 		if matches:
 			if len(matches) > 2:
