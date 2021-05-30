@@ -121,11 +121,10 @@ class Bot(commands.Bot):
 		return perm.replace('_', ' ').title()
 
 	async def on_command_error(self, ctx, error): ## fix error handling
-		await ctx.send(1)
 		error = getattr(error, "original", error)
 
-		if ctx.command.name == "add" and not isinstance(commands.CommandOnCooldown):
-			ctx.command.reset_cooldown(ctx)
+		# if ctx.command.name == "add" and not isinstance(commands.CommandOnCooldown):
+		# 	ctx.command.reset_cooldown(ctx)
 
 		embed = discord.Embed(title=f"Error in command `{ctx.command}`", color=0xd63636)
 		embed.set_footer(text=ctx.author, icon_url=ctx.author.avatar_url)
