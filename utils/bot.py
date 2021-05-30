@@ -6,6 +6,8 @@ from utils.errors import *
 from . import database
 import traceback
 import sys
+from datetime import datetime
+import re
 
 class Help(commands.MinimalHelpCommand): ## make better help command
 	async def send_pages(self):
@@ -52,6 +54,11 @@ class Context(commands.Context):
 				payload.message_id == message
 				and payload.user_id == self.author.id, timeout=timeout)
 
+	def error(self, message):
+		embed = discord.Embed(title=f"Error in command `{self.command}`", color=0xd63636, description=message)
+		embed.set_footer(text=self.author, icon_url=self.author.avatar_url)
+		return embed
+
 class Bot(commands.Bot):
 	def __init__(self, *args, **kwargs):
 		self.config = kwargs.pop("config")
@@ -76,6 +83,9 @@ class Bot(commands.Bot):
 		self.guild_log_channel = self.bot_config["guild_log_channel"]
 		self.success_emoji = self.bot_config["success_emoji"]
 		self.error_emoji = self.bot_config["error_emoji"]
+
+		self.bug_reports = {}
+		self.color = 0xf9c94c
 
 		return await super().start(*args, **kwargs)
 
@@ -107,62 +117,96 @@ class Bot(commands.Bot):
 		channel = self.get_channel(self.guild_log_channel)
 		await channel.send(f"The bot has been removed from `{guild}`. The bot is now in `{len(self.guilds)}` servers")
 
+	async def format_perm(perm):
+		return perm.replace('_', ' ').title()
+
 	async def on_command_error(self, ctx, error): ## fix error handling
-		# if isinstance(error, PartialEmojiConversionFailure):
-		# 	return await ctx.send("Expected a custom emoji, got something else.")
+		error = getattr(error, "original", error)
+
+		if ctx.command.name == "add" and not isinstance(commands.CommandOnCooldown):
+			ctx.command.reset_cooldown(ctx)
+
+		embed = discord.Embed(title=f"Error in command `{ctx.command}`", color=0xd63636)
+		embed.set_footer(text=ctx.author, icon_url=ctx.author.avatar_url)
+
 		if isinstance(error, commands.MissingPermissions):
-			return await ctx.send(f"<:error:836034660932386816> You do not have permissions to do this.\nMissing permissions: {', '.join(error.missing_perms)}")
+			embed.description = f"You do not have permissions to do this.\nMissing permissions: {', '.join(self.format_perm(perm) for perm in error.missing_perms)}"
 
 		elif isinstance(error, commands.NoPrivateMessage):
-			return await ctx.send("This command can only be used in a guild.")
+			embed.description = "This command can only be used in a guild."
 
 		elif isinstance(error, commands.CheckFailure):
-			return await ctx.send("You do not own this bot.")
+			embed.description = "This command is only usable by the bot owner."
 
 		elif isinstance(error, commands.CommandOnCooldown):
-			return await ctx.send(f"This command is on cooldown for {round(error.retry_after, 2)} seconds")
+			minutes, seconds = divmod(error.retry_after, 60)
+			embed.description = f"Discord has rate limited this guild for {ctx.command.name.rstrip('e')}ing emojis. This command is on cooldown for {f'{int(minutes)} minutes,' if minutes > 0 else ''} {int(seconds)} seconds"
 
-		else: ## rewrite error handling
+		elif isinstance(error, EmojifyDisabled):
+			embed.description = "This command is disabled in the guild."
+
+		elif isinstance(error, BadZipFile):
+			embed.description = "The file provided was not a zip file"
+
+		elif isinstance(error, AssertionError):
+			embed.description = "The URL provided was invalid."
+
+		elif isinstance(error, URLNotImage):
+			embed.description = "Could not get an image from the URL provided"
+
+		elif isinstance(error, CantCompressImage):
+			embed.description = "Could not compress this image. Please provide a smaller image when using the command again." # reword?
+
+		elif isinstance(error, EmptyAttachmentName):
+			embed.description = "The attachment provided did not have a name and no name was provided"
+		
+		# elif isinstance(error, NoEmojiSlots):
+		# 	embed.description = "Maximum number of "
+
+		elif match := re.match(r"Maximum number of(?P<animated> animated)? emojis reached \((?P<amount>\d+)\)", str(error)):
+			animated = match.group("animated")
+			amount = match.group("amount")
+			embed.description = f"Maximum number of {'animated ' if animated else ''}emojis reached ({amount})"
+		
+		elif "validation regex" in str(error):
+			embed.description = "The emoji name provided was invalid."
+
+		elif "In image: File cannot be larger than 256.0 kb." in str(error) or isinstance(error, ResourceWarning): # replace with just 256.0 kb?
+			embed.description = "The emoji image cannot be larger than 256 kb."
+
+		else:
 			error_channel = self.get_channel(self.error_channel)
 			traceback_channel = self.get_channel(self.traceback_channel)
 
-			error_ = getattr(error, "original", error)
-			if isinstance(error_, discord.Forbidden):
+			if isinstance(error, discord.Forbidden):
 				missing_perms = []
 				me = ctx.guild.me
 				if not me.guild_permissions.manage_emojis and ctx.command.name in ("add", "remove", "rename", "addmultiple", "removemultiple"):
-					missing_perms.append("manage_emojis")
+					missing_perms.append("Manage Emojis")
 				elif not me.permissions_in(ctx.channel).embed_links and ctx.command.name == "help":
-					missing_perms.append("embed_links")
-				
-				return await ctx.send(f"<:error:836034660932386816> I do not have permissions to do this.\nMissing permissions: {', '.join(missing_perms)}")
+					missing_perms.append("Embed Links")
+					return await ctx.send(f"I do not have permissions to do this.\nMissing permissions: {', '.join(missing_perms)}")
+				elif not me.permissions_in(ctx.channel).send_messages:
+					return
 
-			if isinstance(error_, EmojifyDisabled):
-				return await ctx.send("<:error:836034660932386816> This command is disabled in the guild.")
+				embed.description = f"I do not have permissions to do this.\nMissing permissions: {', '.join(missing_perms)}"
 
-			if "ResourceWarning" in str(error):
-				return await ctx.send("Command raised an exception: HTTPException: 400 Bad Request (error code: 50035): Invalid Form Body\nIn image: File cannot be larger than 256.0 kb.")
+			lines = traceback.format_exception(type(error), error, error.__traceback__)
 
-			await ctx.send(str(error), allowed_mentions=discord.AllowedMentions.none())
-			# if not isinstance(error, commands.CommandNotFound):
-			# 	raise error
-
-			error_type = type(error)
-			error_trace = error.__traceback__
-
-			# 'traceback' is the stdlib module, `import traceback`.
-			lines = traceback.format_exception(error_type, error, error_trace)
-
-			# format_exception returns a list with line breaks embedded in the lines, so let's just stitch the elements together
 			paginator = commands.Paginator()
 			[paginator.add_line(x) for x in ''.join(lines).split("\n")]
 			
-			await error_channel.send(f"{f'Exception in command {ctx.command.name}' if ctx.command else ''} by {ctx.author} \n{error}")
+			await error_channel.send(f"{f'Exception in command `{ctx.command.name}`' if ctx.command else ''} by {ctx.author} \n{error}")
 			
 			for page in paginator.pages:
 				await traceback_channel.send(page)
 
-	async def rr(self, event_method, *args, **kwargs):
+			embed.description = f"An unknown error happened: {str(error)}\nIf this error persists, please report it with the `{ctx.prefix}bug` command"
+		
+		embed.timestamp = datetime.utcnow()
+		await ctx.send(embed=embed)
+
+	async def on_error(self, event_method, *args, **kwargs):
 		lines = traceback.format_exception(*sys.exec_info())
 		paginator = commands.Paginator(prefix=f"<@{self.owner_id}>\n```")
 		[paginator.add_line(x) for x in ''.joirn(lines).split("\n")]
