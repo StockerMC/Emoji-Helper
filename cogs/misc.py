@@ -19,15 +19,15 @@ class Misc(commands.Cog):
 		if not emoji:
 			return await ctx.send("Enter the emoji you would like to enlarge\nExample: `e!big :emoji:`")
 		
-		emoji_regex = r"^<(a)?:(.+)?:(\d+)>$"
+		emoji_regex = r"<(?P<animated>a?):(?P<name>[a-zA-Z0-9_]{2,32}):(?P<id>[0-9]{18,22})>"
 		match = re.findall(emoji_regex, emoji)
 		# if match is None:
 		# 	return await ctx.send("Expected a custom emoji, got something else")
 		if match:
 			match = match[0]
-			animated = match[0]
-			name = match[1]
-			emoji_id = match[2]
+			animated = match.group("animated")
+			name = match.group("name")
+			emoji_id = match.group("id")
 			url = self.bot.get_emoji_url(emoji_id, animated)
 			image = await fetch_emoji_image(url, self.bot)
 			await ctx.send(file=discord.File(io.BytesIO(image), f"{name}.{'gif' if animated else 'png'}"))
@@ -110,13 +110,14 @@ class Misc(commands.Cog):
 
 		if not letters:
 			return await ctx.send("Enter the letters you would like to emojify\nExample: `e!emojify emoji helper`")
+
 		emoji_prefix = ":regional_indicator_"
-		# emoji_regex = r"^<?a?:.+?:\d+?>?$"
 		alphabet = "abcdefghijklmnopqrstuvwxyz"
 		numbers = {
 			"1": "one", "2": "two", "3": "three", "4": "four", "5": "five", "6": "six", "7": "seven", "8": "eight", "9": "nine"
 		}
 		msg = ""
+
 		for letter in letters:
 			if letter.lower() in alphabet:
 				msg += f"{emoji_prefix}{letter.lower()}: "
@@ -155,7 +156,7 @@ Unfortunately, the **only **solution is to wait it out.""")
 		channel = self.bot.get_channel(self.bot.bug_channel)
 		embed = discord.Embed(title=f"Bug reported by {ctx.author}",color=0xd63636, description=message)
 		await channel.send(embed=embed)
-		await ctx.send("<:success:835736813929758740> Bug successfully reported")
+		await ctx.send(f"{self.bot.success_emoji} Bug successfully reported")
 
 def setup(bot):
     bot.add_cog(Misc(bot))
