@@ -3,8 +3,6 @@
         "token": "ODIzMjc0NjYzNTA4NDQzMTM3.YFecRw.weStdVGMyRhSBYqaR8FVw_Xa0P0",
 		"default_prefix": "e!",
 		"default_emojify_toggle": true,
-		"success_emoji": "\\U00002705",
-		"error_emoji": "\\U0000274c",
 		"support_server": "https://discord.gg/nptFDCVPWX",
 		"error_channel": 825852962784935956,
 		"traceback_channel": 847980078813282315,

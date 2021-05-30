@@ -81,8 +81,8 @@ class Bot(commands.Bot):
 		self.traceback_channel = self.bot_config["traceback_channel"]
 		self.bug_channel = self.bot_config["bug_channel"]
 		self.guild_log_channel = self.bot_config["guild_log_channel"]
-		self.success_emoji = self.bot_config["success_emoji"]
-		self.error_emoji = self.bot_config["error_emoji"]
+		self.success_emoji = "\U00002705"
+		self.error_emoji = "\U0000274c"
 
 		self.bug_reports = {}
 		self.color = 0xf9c94c
