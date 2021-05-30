@@ -130,7 +130,7 @@ class Bot(commands.Bot):
 		embed.set_footer(text=ctx.author, icon_url=ctx.author.avatar_url)
 
 		if isinstance(error, commands.MissingPermissions):
-			embed.description = f"You do not have permissions to do this.\nMissing permissions: {', '.join(self.format_perm(perm) for perm in error.missing_perms)}"
+			embed.description = f"You do not have permission to do this.\nMissing permissions: {', '.join(self.format_perm(perm) for perm in error.missing_perms)}"
 
 		elif isinstance(error, commands.NoPrivateMessage):
 			embed.description = "This command can only be used in a guild."
@@ -140,7 +140,7 @@ class Bot(commands.Bot):
 
 		elif isinstance(error, commands.CommandOnCooldown):
 			minutes, seconds = divmod(error.retry_after, 60)
-			embed.description = f"Discord has rate limited this guild for {ctx.command.name.rstrip('e')}ing emojis. This command is on cooldown for {f'{int(minutes)} minutes,' if minutes > 0 else ''} {int(seconds)} seconds"
+			embed.description = f"This command is on cooldown for {ctx.command.name.rstrip('e')}ing emojis to prevent hitting the emoji adding rate limit. It is on cooldown for {f'{int(minutes)} minutes,' if minutes > 0 else ''} {int(seconds)} seconds"
 
 		elif isinstance(error, EmojifyDisabled):
 			embed.description = "This command is disabled in the guild."
@@ -160,6 +160,9 @@ class Bot(commands.Bot):
 		elif isinstance(error, EmptyAttachmentName):
 			embed.description = "The attachment provided did not have a name and no name was provided"
 		
+		elif isinstance(error, GuildEmojiAddRateLimited):
+			embed.description = "The guild was rate limited by discord for adding emojis. There is no set time for when this will expire."
+
 		# elif isinstance(error, NoEmojiSlots):
 		# 	embed.description = "Maximum number of "
 
