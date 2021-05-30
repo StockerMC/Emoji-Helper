@@ -74,7 +74,6 @@ class Emojis(commands.Cog):
 					matches.append(match)
 			except IndexError:
 				pass
-			
 
 		if matches:
 			if len(matches) > 2:
@@ -92,14 +91,7 @@ class Emojis(commands.Cog):
 				emoji_id = match[2]
 
 				url = get_emoji_url(emoji_id, animated)
-				# try:
-				image = await fetch_emoji_image(url, self.bot)
-				# except Exception as e:
-				# 	if isinstance(e, AssertionError):
-				# 		await ctx.send("Could not find that URL")
-				# 	elif isinstance(e, URLNotImage):
-				# 		await ctx.send("Could not get an image from that URL")
-					
+				image = await fetch_emoji_image(url, self.bot)			
 
 				converted = False
 				# if not animated and static_emojis >= emoji_limit and animated_emojis < emoji_limit:
