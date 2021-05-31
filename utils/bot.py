@@ -210,7 +210,7 @@ class Bot(commands.Bot):
 	async def on_error(self, event_method, *args, **kwargs):
 		lines = traceback.format_exception(*sys.exc_info())
 		paginator = commands.Paginator(prefix=f"<@{self.owner_id}>\n```")
-		[paginator.add_line(x) for x in ''.joirn(lines).split("\n")]
+		[paginator.add_line(x) for x in ''.join(lines).split("\n")]
 		channel = self.get_channel(self.traceback_channel)
 		for page in paginator:
 			await channel.send(page)
