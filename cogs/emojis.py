@@ -132,7 +132,7 @@ class Emojis(commands.Cog):
 				embed = ctx.error("Expected a custom emoji, got something else.")
 				return await ctx.send(embed=embed)
 			except IndexError:
-				embed = ctx.error("Please provide a name for the emoji.\nExample: `e!add name <URL>")
+				embed = ctx.error("Please provide a name for the emoji.\nExample: `e!add name <URL>`")
 				return await ctx.send(embed=embed)
 			if not match:
 				embed = ctx.error("Please provide a valid image type (PNG, JPG or GIF)")
