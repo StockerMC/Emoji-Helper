@@ -194,7 +194,7 @@ class Bot(commands.Bot):
 
 			lines = traceback.format_exception(type(error), error, error.__traceback__)
 
-			paginator = commands.Paginator(prefix=f"<@{self.owner_id}>\n```")
+			paginator = commands.Paginator(prefix=f"<@{self.owner_id}>\n```" if ctx.author.id != self.owner_id else "```")
 			[paginator.add_line(x) for x in ''.join(lines).split("\n")]
 			
 			await error_channel.send(f"{f'Exception in command `{ctx.command.name}`' if ctx.command else ''} by {ctx.author} \n{error}")
