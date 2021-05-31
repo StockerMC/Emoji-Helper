@@ -41,12 +41,10 @@ class Emojis(commands.Cog):
 		return embed
 
 	@commands.command(aliases=["steal"])
-	@commands.cooldown(50, 3600, commands.BucketType.guild)
 	@commands.has_permissions(manage_emojis=True)
 	async def add(self, ctx, name=None, *emojis):  # *args, split by space
 		"""Add an emoji with a URL, emoji or file"""
 		if not emojis and not name and not ctx.message.attachments:
-			ctx.command.reset_cooldown(ctx)
 			embed = ctx.error("Enter the URL or attach a file of the emoji you would like to add\nExample: `e!add lol <URL|Attachment>`\nExample: `e!add :custom_emoji:`")
 			return await ctx.send(embed=embed)
 
