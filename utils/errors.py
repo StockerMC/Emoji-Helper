@@ -26,4 +26,4 @@ class NoCustomEmoji(Exception):
 	pass
 
 class GuildEmojiAddRateLimited(Exception):
-	"""The guild is rate limited for adding emojis without being on cooldown"""
+	"""The guild is rate limited for adding emojis"""
