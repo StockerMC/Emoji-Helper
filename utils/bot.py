@@ -97,7 +97,7 @@ class Bot(commands.Bot):
 		if message.author.bot:
 			return
 		ctx = await self.get_context(message, cls=Context)
-		await self.invoke(ctx)
+		await self.inv oke(ctx)
 
 	async def close(self):
 		await self.session.close()
