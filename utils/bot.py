@@ -141,7 +141,7 @@ class Bot(commands.Bot):
 
 		elif isinstance(error, commands.CommandOnCooldown):
 			minutes, seconds = divmod(error.retry_after, 60)
-			embed.description = f"This command is on cooldown for {ctx.command.name.rstrip('e')}ing emojis to prevent hitting the emoji adding rate limit. It is on cooldown for {f'{int(minutes)} minutes,' if minutes > 0 else ''} {int(seconds)} seconds"
+			embed.description = f"This command is on cooldown for {f'{int(minutes)} minutes,' if minutes > 0 else ''} {int(seconds)} seconds"
 
 		elif isinstance(error, EmojifyDisabled):
 			embed.description = "This command is disabled in the guild."
