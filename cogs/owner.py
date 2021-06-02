@@ -3,6 +3,7 @@ import discord
 import asyncio
 import re
 import traceback
+import sys
 
 class Owner(commands.Cog):
 	def __init__(self, bot):
@@ -37,6 +38,9 @@ class Owner(commands.Cog):
 	async def stop(self, ctx):
 		await ctx.send("Shutting down the bot...")
 		await self.bot.close()
+		exit_code = self.bot.config["systemd_exit_code"]
+		sys.exit(exit_code)
+		
 
 	@commands.command(aliases=["sync"])
 	async def pull(self, ctx, restart=False):

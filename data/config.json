@@ -15,5 +15,6 @@
         "database": "emoji_helper",
         "host": "127.0.0.1",
         "setup_completed": true
-    }
+    },
+	"systemd_exit_code": 55 
 }
