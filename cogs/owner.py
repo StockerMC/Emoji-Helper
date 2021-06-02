@@ -86,8 +86,7 @@ class Owner(commands.Cog):
 		stdout, stderr = await process.communicate()
 		stdout = f"{stdout.decode() if stdout is not None else ''}"
 		stderr = f"{stderr.decode() if stderr is not None else ''}"
-
-		embed = discord.Embed(title=command, description=f"{stdout}{f'\n{stderr}' if stderr else ''}", color=self.bot.color)
+		embed = discord.Embed(title=command, description=f"```{stdout}\n{stderr}```", color=self.bot.color)
 		await ctx.send(embed=embed)
 
 	@commands.group(invoke_without_command=True)
