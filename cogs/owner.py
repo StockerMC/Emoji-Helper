@@ -71,15 +71,25 @@ class Owner(commands.Cog):
 			embed = discord.Embed(title="Restarting bot...", color=0xf9c94c)
 			await ctx.send(embed=embed)
 			await self.bot.close()
-		
-		# msg = await ctx.send("Do you want to restart the bot?")
-		# await msg.add_reaction(self.bot.success_emoji)
-		# await msg.add_reaction(self.bot.error_emoji)
-		# try:
-		# 	await ctx.wait_for("reaction_add", reactions=(self.bot.success_emoji, self.bot.error_emoji), timeout=60)
-		# except asyncio.TimeoutError:
-		# 	await msg.delete()
-	
+
+	@commands.command()
+	async def pip(self, method, ctx, *, input):
+		await ctx.trigger_typing()
+		version = sys.version.split()[0][:-2]
+		command = f"python{version} -m pip {method} {input}"
+		process = await asyncio.create_subprocess_shell(
+			command,
+			stdout=asyncio.subprocess.PIPE,
+			stderr=asyncio.subprocess.PIPE
+		)
+
+		stdout, stderr = await process.communicate()
+		stdout = f"{stdout.decode() if stdout is not None else ''}"
+		stderr = f"{stderr.decode() if stderr is not None else ''}"
+
+		embed = discord.Embed(title=command, description=f"{stdout}{f'\n{stderr}' if stderr else ''}", color=self.bot.color)
+		await ctx.send(embed=embed)
+
 	@commands.group(invoke_without_command=True)
 	async def sql(self, ctx, *, query):
 		result = await self.bot.pool.execute(query.lstrip("```sql").rstrip("```"))
