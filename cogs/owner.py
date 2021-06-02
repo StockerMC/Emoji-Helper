@@ -34,7 +34,7 @@ class Owner(commands.Cog):
 			embed = discord.Embed(title=f"Successfully reloaded the cog `{module}`", color=0x27c43a)
 			await msg.edit(content=None, embed=embed)
 
-	@commands.command(aliases=["close"])
+	@commands.command(aliases=["close", "restart"])
 	async def stop(self, ctx):
 		await ctx.send("Shutting down the bot...")
 		await self.bot.close()
