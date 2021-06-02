@@ -223,6 +223,7 @@ class Emojis(commands.Cog):
 		match = re.findall(emoji_regex, name)
 		if match:
 			match = match[0]
+			await ctx.send(match)
 			emoji_id = match.group("id")
 			emoji = self.bot.get_emoji(int(emoji_id))
 			if not emoji or emoji not in ctx.guild.emojis:
