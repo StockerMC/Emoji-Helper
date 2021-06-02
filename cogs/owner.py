@@ -44,6 +44,7 @@ class Owner(commands.Cog):
 
 	@commands.command(aliases=["sync"])
 	async def pull(self, ctx, restart=False):
+		await ctx.trigger_typing()
 		process = await asyncio.create_subprocess_shell(
 			"git pull",
 			stdout=asyncio.subprocess.PIPE,
