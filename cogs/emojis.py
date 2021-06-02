@@ -153,6 +153,8 @@ class Emojis(commands.Cog):
 			# 	image = await bot.loop.run_in_executor(None, convert_to_gif, image)
 			# 	converted = True
 
+			await ctx.send(name)
+
 			emoji = await safe_add_emoji(ctx.guild.create_custom_emoji(name=name, image=image, reason=f"Added by {ctx.author} (ID: {ctx.author.id})"))
 			await ctx.send(f"Emoji {emoji} successfully added{' as a GIF' if converted else ''}")
 
