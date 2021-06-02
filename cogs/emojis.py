@@ -60,7 +60,10 @@ class Emojis(commands.Cog):
 		matches = []
 
 		if name is not None:
-			temp.append(re.findall(emoji_regex, name))
+			match = re.findall(emoji_regex, name)
+			if match:
+				name = None
+			temp.append(match)
 		if len(emojis) > 0:
 			for emoji in emojis:
 				# matches += [re.findall(emoji_regex, emoji)]
@@ -152,8 +155,6 @@ class Emojis(commands.Cog):
 			# if static_emojis >= emoji_limit and animated_emojis < emoji_limit:
 			# 	image = await bot.loop.run_in_executor(None, convert_to_gif, image)
 			# 	converted = True
-
-			await ctx.send(name)
 
 			emoji = await safe_add_emoji(ctx.guild.create_custom_emoji(name=name, image=image, reason=f"Added by {ctx.author} (ID: {ctx.author.id})"))
 			await ctx.send(f"Emoji {emoji} successfully added{' as a GIF' if converted else ''}")
