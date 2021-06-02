@@ -222,6 +222,7 @@ class Emojis(commands.Cog):
 		emoji_regex = r"<a?:[a-zA-Z0-9_]{2,32}:(?P<id>[0-9]{18,22})>"
 		match = re.findall(emoji_regex, name)
 		if match:
+			match = match[0]
 			emoji_id = match.group("id")
 			emoji = self.bot.get_emoji(int(emoji_id))
 			if not emoji or emoji not in ctx.guild.emojis:
