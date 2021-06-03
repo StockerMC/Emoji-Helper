@@ -32,15 +32,25 @@ os.environ["JISHAKU_HIDE"] = "True"
 
 bot = Bot(
 	command_prefix=database.get_prefix,
+	intents=discord.Intents(
+		# on_guild_* events and bot.guilds
+		guilds=True,
+		# necessary for commands to work in guilds and DMs
+		messages=True,
+		# reactions will never be listened for in DMs
+		guild_reactions=True,
+		# emoji related attributes and methods
+		emojis=True
+	),
 	case_insensitive=True,
-	help_command=None,
+	help_command=Help(sort_commands=True),
 	activity=discord.Game("e!help"),
+	# prevents an initial API call for is_owner
 	owner_id=323490082382282752,
-	config=config,
-	max_messages=None
+	# disables the message cache
+	max_messages=None,
+	config=config
 )
-
-bot.help_command = Help(sort_commands=True)
 
 @bot.event
 async def on_command(ctx):
