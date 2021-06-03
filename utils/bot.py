@@ -130,7 +130,10 @@ class Bot(commands.Bot):
 		embed = discord.Embed(title=f"Error in command `{ctx.command}`", color=0xd63636)
 		embed.set_footer(text=ctx.author, icon_url=ctx.author.avatar_url)
 
-		if isinstance(error, commands.MissingPermissions):
+		if isinstance(error, commands.CommandNotFound):
+			embed.description = str(error)
+
+		elif isinstance(error, commands.MissingPermissions):
 			embed.description = f"You do not have permission to do this.\nMissing permissions: {', '.join(self.format_perm(perm) for perm in error.missing_perms)}"
 
 		elif isinstance(error, commands.NoPrivateMessage):
@@ -202,7 +205,7 @@ class Bot(commands.Bot):
 			for page in paginator.pages:
 				await traceback_channel.send(page)
 
-			embed.description = f"An unknown error happened:\n\n```{str(error)}```\n\nIf this error persists, please report it with the `{ctx.prefix}bug` command"
+			embed.description = f"An unknown error happened:\n\n```{str(error)}```"
 		
 		embed.timestamp = datetime.utcnow()
 		await ctx.send(embed=embed)
