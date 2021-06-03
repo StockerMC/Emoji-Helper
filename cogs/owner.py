@@ -73,7 +73,7 @@ class Owner(commands.Cog):
 			await self.bot.close()
 
 	@commands.command()
-	async def pip(self, method, ctx, *, input):
+	async def pip(self, ctx, method, *, input):
 		await ctx.trigger_typing()
 		version = sys.version.split()[0][:-2]
 		command = f"python{version} -m pip {method} {input}"
