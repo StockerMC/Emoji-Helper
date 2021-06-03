@@ -76,7 +76,7 @@ class Owner(commands.Cog):
 	async def pip(self, ctx, method, *, input):
 		await ctx.trigger_typing()
 		version = sys.version.split()[0][:-2]
-		command = f"python{version} -m pip {method} {input}"
+		command = f"/root/Emoji-Helper/venv/bin/python{version} -m pip {method} {input}"
 		process = await asyncio.create_subprocess_shell(
 			command,
 			stdout=asyncio.subprocess.PIPE,
