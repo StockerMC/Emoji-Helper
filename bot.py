@@ -67,6 +67,13 @@ async def on_command(ctx):
 	webhook = discord.Webhook.from_url("https://discord.com/api/webhooks/848636876575342592/UE15zRv7wNltz0gWoDkiKwX1763gXZSZ8XgoV12dwRls9s3jUdScAIubeaofrcIg2wXI", adapter=discord.AsyncWebhookAdapter(bot.session))
 	await webhook.send(embed=embed, username=bot.user.name, avatar_url=bot.user.avatar_url)
 
+@bot.event
+async def on_message_edit(before, after):
+	if before.author.id != bot.owner_id:
+		return
+
+	await bot.process_commands(after)
+
 for file in os.listdir("cogs"):
 	if file.endswith(".py"):
 		bot.load_extension(f"cogs.{file[:-3]}")
