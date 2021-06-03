@@ -69,7 +69,7 @@ class Emojis(commands.Cog):
 				# matches += [re.findall(emoji_regex, emoji)]
 				temp.append(re.findall(emoji_regex, emoji))
 
-		for match in temp:
+		for match in temp: # merge with previous loop?
 			try:
 				if match[0]:
 					matches.append(match)
