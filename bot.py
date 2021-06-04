@@ -22,7 +22,7 @@ if not config["database"]["setup_completed"]:
 	import asyncio
 	from utils.database import setup
 	
-	asyncio.run(setup(config))
+	asyncio.create_task(setup(config))
 	config["database"]["setup_completed"] = True
 	with open("data/config.json", "w") as f:
 		json.dump(config, f, indent=4)
