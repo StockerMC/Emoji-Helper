@@ -7,7 +7,7 @@ from utils.bot import Bot, Help
 from utils import database
 import asyncio
 import sys
-from datetime import datetime
+import pkgutil
 
 warnings.filterwarnings("error")
 
@@ -59,24 +59,8 @@ async def on_command(ctx):
 	except KeyError:
 		bot.command_uses[ctx.command.qualified_name] = 1
 
-	embed = discord.Embed(title=f"`{ctx.command}`", color=bot.color)
-	embed.add_field(name="Author", value=f"{ctx.author} ({ctx.author.id})")
-	embed.add_field(name="Guild", value=f"{ctx.guild} ({ctx.guild.id})")
-	embed.timestamp = datetime.utcnow()
-	embed.add_field(name="Usage", value=ctx.message)
-	webhook = discord.Webhook.from_url("https://discord.com/api/webhooks/848636876575342592/UE15zRv7wNltz0gWoDkiKwX1763gXZSZ8XgoV12dwRls9s3jUdScAIubeaofrcIg2wXI", adapter=discord.AsyncWebhookAdapter(bot.session))
-	await webhook.send(embed=embed, username=bot.user.name, avatar_url=bot.user.avatar_url)
-
-@bot.event
-async def on_message_edit(before, after):
-	if before.author.id != bot.owner_id:
-		return
-
-	await bot.process_commands(after)
-
-for file in os.listdir("cogs"):
-	if file.endswith(".py"):
-		bot.load_extension(f"cogs.{file[:-3]}")
+for importer, name, ispkg in pkgutil.iter_modules("cogs"):
+	bot.load_extension(f"cogs.{name}")
 
 bot.load_extension("jishaku")
 
