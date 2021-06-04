@@ -8,6 +8,7 @@ import traceback
 import sys
 from datetime import datetime
 import re
+from typing import Optional, Iterable
 
 class Help(commands.MinimalHelpCommand): ## make better help command
 	async def send_pages(self):
@@ -17,7 +18,7 @@ class Help(commands.MinimalHelpCommand): ## make better help command
 			await destination.send(embed=embed)
 
 class Context(commands.Context):
-	async def wait_for(self, event, timeout=None, **kwargs):
+	async def wait_for(self, event: str, timeout: Optional[float] = None, **kwargs):
 		if event == "message":
 			if kwargs.get("numeric"):
 				return await self.bot.wait_for(event, check = lambda message:
@@ -31,32 +32,32 @@ class Context(commands.Context):
 		elif event == "reaction_add":
 			message = kwargs["message"]
 			message = getattr(message, "id", message)
-			reactions = kwargs.get("reactions")
+			reactions: Optional[list] = kwargs.get("reactions")
 			if reactions:
 				return await self.bot.wait_for(event, check = lambda reaction, user:
 				reaction.message.id == message
 				and user == self.author
-				and str(reaction.emoji) in reactions, timeout=timeout)
+				and str(reaction.emoji) in reactions, timeout=timeout) # type: ignore
 			else:
 				return await self.bot.wait_for(event, check = lambda reaction, user:
 				reaction.message.id == message
 				and user == self.author, timeout=timeout)
 		elif event == "raw_reaction_add":
 			message = kwargs["message"].id
-			reactions = kwargs.get("reactions")
+			reactions: Optional[list] = kwargs.get("reactions")
 			if reactions:
 				return await self.bot.wait_for(event, check = lambda payload:
 				payload.message_id == message
-				and payload.user_id == self.author.id
-				and str(payload.emoji) in reactions, timeout=timeout)
+				and payload.user_id == self.author.id # type: ignore
+				and str(payload.emoji) in reactions, timeout=timeout) # type: ignore
 			else:
 				return await self.bot.wait_for(event, check = lambda payload:
 				payload.message_id == message
-				and payload.user_id == self.author.id, timeout=timeout)
+				and payload.user_id == self.author.id, timeout=timeout) # type: ignore
 
 	def error(self, message):
 		embed = discord.Embed(title=f"Error in command `{self.command}`", color=0xd63636, description=message)
-		embed.set_footer(text=self.author, icon_url=self.author.avatar_url)
+		embed.set_footer(text=self.author, icon_url=self.author.avatar_url) # type: ignore
 		return embed
 
 class Bot(commands.Bot):
@@ -118,7 +119,7 @@ class Bot(commands.Bot):
 		channel = self.get_channel(self.guild_log_channel)
 		await channel.send(f"The bot has been removed from `{guild}`. The bot is now in `{len(self.guilds)}` servers")
 
-	async def format_perm(perm):
+	def format_perm(self, perm: str):
 		return perm.replace('_', ' ').title()
 
 	async def on_command_error(self, ctx, error): ## fix error handling
@@ -215,5 +216,5 @@ class Bot(commands.Bot):
 		paginator = commands.Paginator(prefix=f"<@{self.owner_id}>\n```")
 		[paginator.add_line(x) for x in ''.join(lines).split("\n")]
 		channel = self.get_channel(self.traceback_channel)
-		for page in paginator:
+		for page in paginator.pages:
 			await channel.send(page)
