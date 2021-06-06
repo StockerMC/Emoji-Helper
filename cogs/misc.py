@@ -32,8 +32,8 @@ class Misc(commands.Cog):
 			await ctx.send(file=discord.File(io.BytesIO(image), f"{name}.{'gif' if animated else 'png'}"))
 		else:
 			emojis_with_name = [
-				emoji for emoji in ctx.guild.emojis
-				if emoji.name.lower() == emoji.lower()
+				emoji_ for emoji_ in ctx.guild.emojis
+				if emoji_.name.lower() == emoji.lower()
 			]
 			if len(emojis_with_name) == 0:
 				return await ctx.send("This emoji does not exist")
