@@ -24,7 +24,7 @@ class Misc(commands.Cog):
 		# if match is None:
 		# 	return await ctx.send("Expected a custom emoji, got something else")
 		if match:
-			# match = match[0]
+			match = match[0]
 			animated = match.group("animated")
 			name = match.group("name")
 			emoji_id = match.group("id")
