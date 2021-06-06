@@ -13,7 +13,7 @@ class Misc(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 
-	@commands.command(aliases=["emoji", "image"])
+	@commands.command(aliases=["image"])
 	async def big(self, ctx, emoji=None):
 		"""Enlarges an emoji"""
 		if not emoji:
