@@ -20,11 +20,10 @@ class Misc(commands.Cog):
 			return await ctx.send("Enter the emoji you would like to enlarge\nExample: `e!big :emoji:`")
 		
 		emoji_regex = r"<(?P<animated>a?):(?P<name>[a-zA-Z0-9_]{2,32}):(?P<id>[0-9]{18,22})>"
-		match = re.findall(emoji_regex, emoji)
+		match = re.match(emoji_regex, emoji)
 		# if match is None:
 		# 	return await ctx.send("Expected a custom emoji, got something else")
 		if match:
-			match = match[0]
 			animated = match.group("animated")
 			name = match.group("name")
 			emoji_id = match.group("id")
