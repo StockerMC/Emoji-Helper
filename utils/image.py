@@ -25,7 +25,7 @@ def compress_image(image_bytes):
 		if new_size[0] <= 0 or new_size[1] <= 0:
 			raise CantCompressImage("Size can't be below 0")
 
-		image = image.resize(new_size, Image.ANTIALIAS) # regularly antialias
+		image = image.resize(new_size, Image.ANTIALIAS)  # type: ignore # regularly antialias
 		image.save(output, optimize=True, quality=95, format="GIF" if animated else "PNG")
 		if len(output.getvalue()) / 1000 > kb_size:
 			raise CantCompressImage("Image increasing in size")

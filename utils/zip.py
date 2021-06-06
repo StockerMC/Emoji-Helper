@@ -42,7 +42,7 @@ def unzip_file(file_bytes):
 async def fetch_zip_url(url, bot):
 	#if not url.endswith(".zip"):
 	#	return False
-	timeout = aiohttp.ClientTimeout(total=60)
+	timeout = aiohttp.ClientTimeout(total=60) # type: ignore
 	async with bot.session.get(url, timeout=timeout) as response:
 		assert response.status == 200
 		zip_file = await response.read()
