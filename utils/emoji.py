@@ -10,7 +10,7 @@ def get_emoji_url(emoji_id, animated):
 	return f"https://cdn.discordapp.com/emojis/{emoji_id}.{'gif' if animated else 'png'}?v=1"
 
 async def fetch_emoji_image(url, bot):
-	timeout = aiohttp.ClientTimeout(total=60)
+	timeout = aiohttp.ClientTimeout(total=60) # type: ignore
 	async with bot.session.get(url, timeout=timeout) as response:
 		assert response.status == 200
 
