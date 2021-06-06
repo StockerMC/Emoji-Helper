@@ -264,7 +264,7 @@ class Emojis(commands.Cog):
 					return await msg.edit(content="This message has expired")  #change
 
 	@commands.command(name="list")
-	async def list_(self, ctx, emoji_type: lambda arg: arg.lower()="all"):
+	async def list_(self, ctx, emoji_type: lambda arg: arg.lower()="all"): # type: ignore
 		"""Lists all emojis in the guild"""
 		emojis = ctx.guild.emojis if emoji_type == "all" else [emoji for emoji in ctx.guild.emojis if emoji.animated] if emoji_type == "animated" else [emoji for emoji in ctx.guild.emojis if not emoji.animated] if emoji_type == "static" else None
 		if not emojis:
@@ -305,7 +305,7 @@ class Emojis(commands.Cog):
 
 	@commands.command(aliases=["addthese"])
 	@commands.has_permissions(manage_emojis=True)
-	async def addmultiple(self, ctx, emojis: commands.Greedy[discord.PartialEmoji]=None):
+	async def addmultiple(self, ctx, emojis: commands.Greedy[discord.PartialEmoji]=None): # type: ignore
 		"""Add multiple emojis at once"""
 		if not emojis:
 			return await ctx.send("Enter the emojis you would like to add separated by a space\nExample: `e!addmultiple :emoji1: :emoji2:`")
@@ -315,24 +315,24 @@ class Emojis(commands.Cog):
 		await ctx.message.add_reaction("\U000025b6")
 		for emoji in emojis:
 			try:
-				await ctx.invoke(self.add, emoji.name, str(emoji.url))
+				await ctx.invoke(self.add, emoji.name, str(emoji.url)) # type: ignore
 			except discord.HTTPException as e:
 				await ctx.send(str(e))
 				exceptions_raised += 1
 
 		await ctx.message.remove_reaction("\U000025b6", ctx.me)
-		if exceptions_raised == len(emojis):
+		if exceptions_raised == len(emojis): # type: ignore
 			await ctx.send("Could not add the emojis provided")
 			return await ctx.message.add_reaction(self.bot.error_emoji)
-		elif exceptions_raised > 0 and exceptions_raised < len(emojis):
-			await ctx.send(f"Could not add {exceptions_raised / len(emojis)} emojis")
+		elif exceptions_raised > 0 and exceptions_raised < len(emojis): # type: ignore
+			await ctx.send(f"Could not add {exceptions_raised / len(emojis)} emojis") # type: ignore
 			return await ctx.message.add_reaction("\U000026a0")
 
 		await ctx.message.add_reaction(self.bot.success_emoji)
 
 	@commands.command(aliases=["removethese"])
 	@commands.has_permissions(manage_emojis=True)
-	async def removemultiple(self, ctx, emojis: commands.Greedy[discord.PartialEmoji]=None):
+	async def removemultiple(self, ctx, emojis: commands.Greedy[discord.PartialEmoji]=None): # type: ignore
 		"""Remove multiple emojis at once"""
 		if not emojis:
 			return await ctx.send("Enter the emojis you would like to remove separated by a space\nExample: `e!removemultiple :emoji1: :emoji2:`")
@@ -342,7 +342,7 @@ class Emojis(commands.Cog):
 
 	@commands.has_permissions(manage_emojis=True)
 	@commands.command(aliases=["zip"])
-	async def export(self, ctx, emoji_type: lambda arg: arg.lower()="all"):
+	async def export(self, ctx, emoji_type: lambda arg: arg.lower()="all"): # type: ignore
 		"""Get a zip file of all of the guild's emojis | all, animated or static"""
 		emojis = ctx.guild.emojis if emoji_type == "all" else [emoji for emoji in ctx.guild.emojis if emoji.animated] if emoji_type == "animated" else [emoji for emoji in ctx.guild.emojis if not emoji.animated] if emoji_type == "static" else None
 		if not emojis:
@@ -387,7 +387,7 @@ class Emojis(commands.Cog):
 			await ctx.send(f"Emoji {emoji} successfully added{' as a GIF' if converted else ''}")
 
 	@commands.command()
-	async def stats(self, ctx, emoji_type: lambda arg: arg.lower()="all"):
+	async def stats(self, ctx, emoji_type: lambda arg: arg.lower()="all"): # type: ignore
 		# emojis = len(ctx.guild.emojis) if emoji_type == "all" else len([emoji for emoji in ctx.guild.emojis if emoji.animated]) if emoji_type == "animated" else len([emoji for emoji in ctx.guild.emojis if not emoji.animated]) if emoji_type == "static" else None
 		# if not emojis:
 		# 	return await ctx.send("Please specify a valid emoji type (all, animated or static)")
@@ -404,7 +404,7 @@ class Emojis(commands.Cog):
 		if emoji_type == "all":
 			embed.add_field(name="Static Emojis", value=f"{static_emojis} / {emoji_limit}** ({round(static_emojis / emoji_limit, 2) * 100}%) | {emoji_limit - static_emojis} slot{'s' if emoji_limit - static_emojis != 1 else ''} available")
 			embed.add_field(name="Animated Emojis", value=f"{animated_emojis} / {emoji_limit}** ({round(animated_emojis / emoji_limit, 2) * 100}%) | {emoji_limit - animated_emojis} slot{'s' if emoji_limit - animated_emojis != 1 else ''} available")
-			embed.add_field("Total Emojis", value=f"{static_emojis + animated_emojis} / {emoji_limit * 2}** ({round(round((static_emojis + animated_emojis) / (emoji_limit * 2), 2) * 100, 2)}%) | {emoji_limit * 2 - (static_emojis + animated_emojis)} slot{'s' if emoji_limit * 2 - (static_emojis + animated_emojis) != 1 else ''} available")
+			embed.add_field(name="Total Emojis", value=f"{static_emojis + animated_emojis} / {emoji_limit * 2}** ({round(round((static_emojis + animated_emojis) / (emoji_limit * 2), 2) * 100, 2)}%) | {emoji_limit * 2 - (static_emojis + animated_emojis)} slot{'s' if emoji_limit * 2 - (static_emojis + animated_emojis) != 1 else ''} available")
 		elif emoji_type == "static":
 			embed.add_field(name="Static Emojis", value=f"{static_emojis} / {emoji_limit}** ({round(static_emojis / emoji_limit, 2) * 100}%) | {emoji_limit - static_emojis} slot{'s' if emoji_limit - static_emojis != 1 else ''} available")
 		elif emoji_type == "animated":
