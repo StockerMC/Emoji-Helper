@@ -6,7 +6,7 @@ import io
 import asyncio
 from discord.ext.commands.cooldowns import BucketType
 from utils import database
-from utils.emoji import fetch_emoji_image
+from utils.emoji import fetch_emoji_image, get_emoji_url
 from utils.errors import EmojifyDisabled
 
 class Misc(commands.Cog):
@@ -27,7 +27,7 @@ class Misc(commands.Cog):
 			animated = match.group("animated")
 			name = match.group("name")
 			emoji_id = match.group("id")
-			url = self.bot.get_emoji_url(emoji_id, animated)
+			url = get_emoji_url(emoji_id, animated)
 			image = await fetch_emoji_image(url, self.bot)
 			await ctx.send(file=discord.File(io.BytesIO(image), f"{name}.{'gif' if animated else 'png'}"))
 		else:
@@ -53,7 +53,7 @@ class Misc(commands.Cog):
 					try:
 						emoji = emojis_with_name[int(message.content) - 1]
 						animated = emoji.animated
-						url = self.bot.get_emoji_url(emoji.id, animated)
+						url = get_emoji_url(emoji.id, animated)
 						image = await fetch_emoji_image(url, self.bot)
 						await ctx.send(file=discord.File(io.BytesIO(image), f"{emoji.name}.{'gif' if animated else 'png'}"))
 					except IndexError:
