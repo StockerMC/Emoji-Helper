@@ -29,6 +29,7 @@ if not config["database"]["setup_completed"]:
 
 os.environ["JISHAKU_NO_DM_TRACEBACK"] = "True"
 os.environ["JISHAKU_HIDE"] = "True"
+os.environ["JISHAKU_NO_UNDERSCORE"] = "True"
 
 bot = Bot(
 	command_prefix=database.get_prefix,
