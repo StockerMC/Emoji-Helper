@@ -60,7 +60,7 @@ async def on_command(ctx):
 	except KeyError:
 		bot.command_uses[ctx.command.qualified_name] = 1
 
-for importer, name, ispkg in pkgutil.iter_modules("cogs"):
+for importer, name, ispkg in pkgutil.iter_modules(("cogs",)):
 	bot.load_extension(f"cogs.{name}")
 
 bot.load_extension("jishaku")
