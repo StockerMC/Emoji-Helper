@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 from utils.bot import Bot
-from typing import Optional
 
 async def change_prefix(guild_id: int, prefix: str, bot: Bot):
 	# if prefix == bot.default_prefix:
@@ -34,16 +33,8 @@ async def get_prefix(bot: Bot, message: discord.Message):
 	bot.prefixes[message.guild.id] = prefix # type: ignore
 	return commands.when_mentioned_or(prefix)(bot, message)
 
-async def get_guild_prefix(guild_id: int, bot: Bot): # fetching from database might be completely useless since prefixes are cached in get_prefix
+async def get_guild_prefix(guild_id: int, bot: Bot): # no need to fetch from database since prefixes are cached in get_prefix
 	prefix = bot.prefixes.get(guild_id)
-	if prefix is not None:
-		return prefix
-
-	prefix = await bot.pool.fetchval(
-		"SELECT prefix FROM prefixes WHERE guild = $1",
-		guild_id
-	)
-	bot.prefixes[guild_id] = prefix
 	return prefix
 
 async def delete_prefix(guild_id: int, bot: Bot):
