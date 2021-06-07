@@ -1,6 +1,10 @@
+from __future__ import annotations
 import discord
 from discord.ext import commands
-from utils.bot import Bot
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+	from utils.bot import Bot
 
 async def change_prefix(guild_id: int, prefix: str, bot: Bot):
 	# if prefix == bot.default_prefix:

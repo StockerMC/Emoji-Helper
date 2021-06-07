@@ -1,5 +1,8 @@
-from discord.ext import commands
-from utils.bot import Bot
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+	from utils.bot import Bot
 
 async def change_emojify(guild_id: int, emojify: bool, bot: Bot):
 	# if emojify == bot.default_emojify_toggle:
