@@ -3,7 +3,7 @@ import os
 import warnings
 import logging
 import json
-from utils.bot import Bot, Help
+from utils.bot import Bot, Help, Context
 from utils import database
 import asyncio
 import sys
@@ -54,7 +54,7 @@ bot = Bot(
 )
 
 @bot.event
-async def on_command(ctx):
+async def on_command(ctx: Context):
 	try:
 		bot.command_uses[ctx.command.qualified_name] += 1
 	except KeyError:
