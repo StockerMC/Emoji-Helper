@@ -3,7 +3,6 @@ import discord
 import asyncpg
 import aiohttp
 from utils.errors import *
-from utils.bot import Context
 from . import database
 import traceback
 import sys
