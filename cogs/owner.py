@@ -1,12 +1,17 @@
+from __future__ import annotations
 from discord.ext import commands
 import discord
 import asyncio
 import re
 import traceback
 import sys
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+	from utils.bot import Bot
 
 class Owner(commands.Cog):
-	def __init__(self, bot):
+	def __init__(self, bot: Bot):
 		self.bot = bot
 
 	async def cog_check(self, ctx):
@@ -120,9 +125,9 @@ class Owner(commands.Cog):
 			return await ctx.send(embed=embed)
 
 		try:
-			uses = self.bot.command_uses[command]
+			uses = self.bot.command_uses[command] # type: ignore
 		except KeyError:
-			self.bot.command_uses[command] = 0
+			self.bot.command_uses[command] = 0 # type: ignore
 			uses = 0
 
 		embed = discord.Embed(title=f"Command uses of the command `{command}`", description=f"{uses} use{'s' if uses != 1 else ''}", color=self.bot.color)

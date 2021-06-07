@@ -1,3 +1,4 @@
+from __future__ import annotations
 from discord.ext import commands
 import discord
 import time
@@ -8,9 +9,13 @@ from discord.ext.commands.cooldowns import BucketType
 from utils import database
 from utils.emoji import fetch_emoji_image, get_emoji_url
 from utils.errors import EmojifyDisabled
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+	from utils.bot import Bot
 
 class Misc(commands.Cog):
-	def __init__(self, bot):
+	def __init__(self, bot: Bot):
 		self.bot = bot
 
 	@commands.command(aliases=["image"])
@@ -152,7 +157,7 @@ Unfortunately, the **only **solution is to wait it out.""")
 		"""Report a bug/issue with the bot"""
 		if not message:
 			return await ctx.send("Please attach a message with the bug or issue you are experiencing.")
-		channel = self.bot.get_channel(self.bot.bug_channel)
+		channel = self.bot.get_channel(self.bot.bug_channel) # type: ignore
 		embed = discord.Embed(title=f"Bug reported by {ctx.author} ({ctx.author.id})", color=0xd63636, description=message)
 		embed.set_footer(text=f"ID: {len(self.bot.bug_reports) + 1}")
 		await channel.send(embed=embed)
@@ -166,7 +171,7 @@ Unfortunately, the **only **solution is to wait it out.""")
 	async def anonymous(self, ctx, *, message=None):
 		if not message:
 			return await ctx.send("Please attach a message with the bug or issue you are experiencing.")
-		channel = self.bot.get_channel(self.bot.bug_channel)
+		channel = self.bot.get_channel(self.bot.bug_channel) # type: ignore
 		embed = discord.Embed(title=f"Bug anonymously reported", color=0xd63636, description=message)
 		embed.set_footer(text=f"ID: {len(self.bot.bug_reports) + 1}")
 		await channel.send(embed=embed)
