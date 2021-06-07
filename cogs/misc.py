@@ -158,10 +158,24 @@ Unfortunately, the **only **solution is to wait it out.""")
 		await channel.send(embed=embed)
 		fallback_message = await ctx.send(f"{self.bot.success_emoji} Bug successfully reported")
 		self.bot.bug_reports[len(self.bot.bug_reports)] = {
-			"message": ctx.message,
+			"message": ctx.channel.get_partial_message(ctx.message.id),
 			"fallback_message": fallback_message,
 		}
 
+	@bug.command()
+	async def anonymous(self, ctx, *, message=None):
+		if not message:
+			return await ctx.send("Please attach a message with the bug or issue you are experiencing.")
+		channel = self.bot.get_channel(self.bot.bug_channel)
+		embed = discord.Embed(title=f"Bug anonymously reported", color=0xd63636, description=message)
+		embed.set_footer(text=f"ID: {len(self.bot.bug_reports) + 1}")
+		await channel.send(embed=embed)
+		fallback_message = await ctx.send(f"{self.bot.success_emoji} Bug successfully reported")
+		self.bot.bug_reports[len(self.bot.bug_reports)] = {
+			"message": ctx.channel.get_partial_message(ctx.message.id),
+			"fallback_message": fallback_message,
+		}
+	
 	@bug.command()
 	@commands.is_owner()
 	async def reply(self, ctx, id: int, *, message=None):
