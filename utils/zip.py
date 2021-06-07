@@ -1,8 +1,13 @@
+from __future__ import annotations
 from zipfile import ZipFile
 import io
 import aiohttp
+from typing import TYPE_CHECKING, Optional
 
-async def zip_emojis(emojis):
+if TYPE_CHECKING:
+	from .bot import Bot
+
+async def zip_emojis(emojis: list) -> io.BytesIO:
 	zip_file = io.BytesIO()
 	with ZipFile(zip_file, "w") as f:
 		temp = {}
@@ -21,7 +26,7 @@ async def zip_emojis(emojis):
 	zip_file.seek(0)
 	return zip_file
 
-def unzip_file(file_bytes): 
+def unzip_file(file_bytes: bytes) -> Optional[list]: 
 	file = ZipFile(io.BytesIO(file_bytes), "r")
 	names = [name for name in file.namelist() if name.endswith((".png", ".jpg", ".jpeg", ".gif"))]
 
@@ -39,7 +44,7 @@ def unzip_file(file_bytes):
 
 	return emojis
 
-async def fetch_zip_url(url, bot):
+async def fetch_zip_url(url: str, bot: Bot):
 	#if not url.endswith(".zip"):
 	#	return False
 	timeout = aiohttp.ClientTimeout(total=60) # type: ignore

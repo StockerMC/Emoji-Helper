@@ -2,7 +2,7 @@ from PIL import Image
 from .errors import CantCompressImage
 import io
 
-def compress_image(image_bytes):
+def compress_image(image_bytes: bytes) -> bytes:
 	max_retries = 4 # or 5
 	retries = 0
 	kb_size = len(image_bytes) / 1000 # bytes / 1000 = kilobytes
