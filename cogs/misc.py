@@ -36,6 +36,7 @@ class Misc(commands.Cog):
 				if emoji_.name.lower() == emoji.lower()
 			]
 			if len(emojis_with_name) == 0:
+				embed = ...
 				return await ctx.send("This emoji does not exist")
 			if len(emojis_with_name) == 1:
 				emoji = emojis_with_name[0]
@@ -94,7 +95,7 @@ class Misc(commands.Cog):
 	async def support(self, ctx):
 		"""Get the invite for the support server"""	
 		try:
-			await ctx.author.send(f"Official support server invite: {self.bot.support_server}")
+			await ctx.author.send(f"Official support server invite: {self.bot.support_server_invite}")
 			await ctx.message.add_reaction(self.bot.success_emoji)
 		except discord.Forbidden:
 			await ctx.send(f"Cannot DM {str(ctx.author)}")
@@ -195,7 +196,6 @@ Unfortunately, the **only **solution is to wait it out.""")
 				return await ctx.send(embed=embed)
 
 		else:
-			del self.bot.bug_reports
 			self.bot.bug_reports = {}
 		
 		embed = discord.Embed(title=f"Successfully cleared {'all bug reports from the cache' if not id else f'the bug report with the ID `{id}`'}", color=self.bot.color)

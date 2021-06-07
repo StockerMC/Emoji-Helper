@@ -18,13 +18,13 @@ class Owner(commands.Cog):
 
 	@commands.command()
 	async def members(self, ctx):
-		await ctx.send(len(guild.member_count for guild in self.bot.guilds))
+		await ctx.send(sum(guild.member_count for guild in self.bot.guilds))
 
 	@commands.command()
 	async def reload(self, ctx, *, module):
+		embed = discord.Embed(title=f"Reloading the cog `{module}`...", color=0xf9c94c)
+		msg = await ctx.send(embed=embed)
 		try:
-			embed = discord.Embed(title=f"Reloading the cog `{module}`...", color=0xf9c94c)
-			msg = await ctx.send(embed=embed)
 			self.bot.reload_extension(f"cogs.{module}")
 		except Exception as e:
 			e = traceback.format_exception(type(e), e, e.__traceback__)

@@ -3,12 +3,13 @@ import discord
 import asyncpg
 import aiohttp
 from utils.errors import *
+from utils.bot import Context
 from . import database
 import traceback
 import sys
 from datetime import datetime
 import re
-from typing import Optional, Iterable
+from typing import Optional, Union, Any
 
 class Help(commands.MinimalHelpCommand): ## make better help command
 	async def send_pages(self):
@@ -18,7 +19,7 @@ class Help(commands.MinimalHelpCommand): ## make better help command
 			await destination.send(embed=embed)
 
 class Context(commands.Context):
-	async def wait_for(self, event: str, timeout: Optional[float] = None, **kwargs):
+	async def wait_for(self, event: str, timeout: Optional[float] = None, **kwargs) -> Union[discord.RawReactionActionEvent, discord.Message]:
 		if event == "message":
 			if kwargs.get("numeric"):
 				return await self.bot.wait_for(event, check = lambda message:
@@ -29,19 +30,6 @@ class Context(commands.Context):
 				return await self.bot.wait_for(event, check = lambda message:
 				message.author == self.author
 				and message.channel == self.channel, timeout=timeout)
-		elif event == "reaction_add":
-			message = kwargs["message"]
-			message = getattr(message, "id", message)
-			reactions: Optional[list] = kwargs.get("reactions")
-			if reactions:
-				return await self.bot.wait_for(event, check = lambda reaction, user:
-				reaction.message.id == message
-				and user == self.author
-				and str(reaction.emoji) in reactions, timeout=timeout) # type: ignore
-			else:
-				return await self.bot.wait_for(event, check = lambda reaction, user:
-				reaction.message.id == message
-				and user == self.author, timeout=timeout)
 		elif event == "raw_reaction_add":
 			message = kwargs["message"].id
 			reactions: Optional[list] = kwargs.get("reactions")
@@ -55,50 +43,48 @@ class Context(commands.Context):
 				payload.message_id == message
 				and payload.user_id == self.author.id, timeout=timeout) # type: ignore
 
-	def error(self, message):
+		else:
+			# to shut up pyright
+			raise NotImplementedError
+
+	def error(self, message: str):
 		embed = discord.Embed(title=f"Error in command `{self.command}`", color=0xd63636, description=message)
 		embed.set_footer(text=self.author, icon_url=self.author.avatar_url) # type: ignore
 		return embed
 
 class Bot(commands.Bot):
 	def __init__(self, *args, **kwargs):
-		self.config = kwargs.pop("config")
+		self.config: dict[str, Any] = kwargs.pop("config")
 		super().__init__(*args, **kwargs)
 
 	async def start(self, *args, **kwargs):
 		self.session = aiohttp.ClientSession(loop=self.loop)
-		self.prefixes = {}
-		self.emojify_toggles = {}
+		self.prefixes: dict[int, str] = {}
+		self.emojify_toggles: dict[int, bool] = {}
 
-		self.postgres_config = self.config["database"]
+		self.postgres_config: dict[str, Any] = self.config["database"]
 		del self.postgres_config["setup_completed"]
 		self.pool = await asyncpg.create_pool(**self.postgres_config)
 		
-		self.bot_config = self.config["bot"]
-		self.default_prefix = self.bot_config["default_prefix"]
-		self.default_emojify_toggle = self.bot_config["default_emojify_toggle"]
-		self.support_server = self.bot_config["support_server"]
-		self.error_channel = self.bot_config["error_channel"]
-		self.traceback_channel = self.bot_config["traceback_channel"]
-		self.bug_channel = self.bot_config["bug_channel"]
-		self.guild_log_channel = self.bot_config["guild_log_channel"]
-		self.success_emoji = "\U00002705"
-		self.error_emoji = "<:error:848609436117368902>"
+		self.bot_config: dict[str, Any] = self.config["bot"]
+		self.default_prefix: str = self.bot_config["default_prefix"]
+		self.default_emojify_toggle: bool = self.bot_config["default_emojify_toggle"]
+		self.support_server_invite: str = self.bot_config["support_server"]
+		self.error_channel_id: int = self.bot_config["error_channel"]
+		self.traceback_channel_id: int = self.bot_config["traceback_channel"]
+		self.bug_channel_id: int = self.bot_config["bug_channel"]
+		self.guild_log_channel_id: int = self.bot_config["guild_log_channel"]
+		self.success_emoji: str = "\U00002705"
+		self.error_emoji: str = "<:error:848609436117368902>"
 
-		self.command_uses = {}
-		self.bug_reports = {}
+		self.command_uses: dict[str, int] = {}
+		self.bug_reports: dict[int, dict[str, discord.Message]] = {}
 		self.color = 0xf9c94c
 
 		return await super().start(*args, **kwargs)
 
-	async def get_context(self, message, *, cls=Context):
-		return await super().get_context(message, cls=cls)
-
-	async def on_message(self, message):
-		if message.author.bot:
-			return
-		ctx = await self.get_context(message, cls=Context)
-		await self.invoke(ctx)
+	async def get_context(self, message) -> Context:
+		return await super().get_context(message, cls=Context)
 
 	async def close(self):
 		await self.session.close()
@@ -106,30 +92,29 @@ class Bot(commands.Bot):
 		return await super().close()
 
 	async def on_ready(self):
-		# print("fix import export #bugs")
 		print(f"{self.user.name} is now ONLINE!")
 
-	async def on_guild_join(self, guild):
-		channel = self.get_channel(self.guild_log_channel)
+	async def on_guild_join(self, guild: discord.Guild):
+		channel = self.get_channel(self.guild_log_channel_id)
 		await channel.send(f"The bot has been added to `{guild}`. The bot is now in `{len(self.guilds)}` servers")
 
-	async def on_guild_remove(self, guild):
+	async def on_guild_remove(self, guild: discord.Guild):
 		await database.delete_prefix(guild.id, self)
 		await database.delete_emojify(guild.id, self)
-		channel = self.get_channel(self.guild_log_channel)
+		channel = self.get_channel(self.guild_log_channel_id)
 		await channel.send(f"The bot has been removed from `{guild}`. The bot is now in `{len(self.guilds)}` servers")
 
 	def format_perm(self, perm: str):
 		return perm.replace('_', ' ').title()
 
-	async def on_command_error(self, ctx, error): ## fix error handling
+	async def on_command_error(self, ctx: Context, error: commands.CommandError): ## fix error handling
 		error = getattr(error, "original", error)
 
 		# if ctx.command.name == "add" and not isinstance(commands.CommandOnCooldown):
 		# 	ctx.command.reset_cooldown(ctx)
 
 		embed = discord.Embed(title=f"Error in command `{ctx.command}`", color=0xd63636)
-		embed.set_footer(text=ctx.author, icon_url=ctx.author.avatar_url)
+		embed.set_footer(text=ctx.author, icon_url=ctx.author.avatar_url) # type: ignore
 
 		if isinstance(error, commands.CommandNotFound):
 			embed.description = str(error)
@@ -180,12 +165,12 @@ class Bot(commands.Bot):
 			embed.description = "The emoji image cannot be larger than 256 kb."
 
 		else:
-			error_channel = self.get_channel(self.error_channel)
-			traceback_channel = self.get_channel(self.traceback_channel)
+			error_channel = self.get_channel(self.error_channel_id)
+			traceback_channel = self.get_channel(self.traceback_channel_id)
 
 			if isinstance(error, discord.Forbidden):
 				missing_perms = []
-				me = ctx.guild.me
+				me = ctx.guild.me # type: ignore
 				if not me.guild_permissions.manage_emojis and ctx.command.name in ("add", "remove", "rename", "addmultiple", "removemultiple"):
 					missing_perms.append("Manage Emojis")
 				elif not me.permissions_in(ctx.channel).embed_links and ctx.command.name == "help":
@@ -198,7 +183,7 @@ class Bot(commands.Bot):
 
 			lines = traceback.format_exception(type(error), error, error.__traceback__)
 
-			paginator = commands.Paginator(prefix=f"<@{self.owner_id}>\n```" if ctx.author.id != self.owner_id else "```")
+			paginator = commands.Paginator(prefix=f"<@{self.owner_id}>\n```" if ctx.author.id != self.owner_id else "```") # type: ignore
 			[paginator.add_line(x) for x in ''.join(lines).split("\n")]
 			
 			await error_channel.send(f"{f'Exception in command `{ctx.command.name}`' if ctx.command else ''} by {ctx.author} \n{error}")
@@ -215,6 +200,6 @@ class Bot(commands.Bot):
 		lines = traceback.format_exception(*sys.exc_info())
 		paginator = commands.Paginator(prefix=f"<@{self.owner_id}>\n```")
 		[paginator.add_line(x) for x in ''.join(lines).split("\n")]
-		channel = self.get_channel(self.traceback_channel)
+		channel = self.get_channel(self.traceback_channel_id)
 		for page in paginator.pages:
 			await channel.send(page)

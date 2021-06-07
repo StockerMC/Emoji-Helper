@@ -1,6 +1,9 @@
+import discord
 from discord.ext import commands
+from utils.bot import Bot
+from typing import Optional
 
-async def change_prefix(guild, prefix, bot):
+async def change_prefix(guild_id: int, prefix: str, bot: Bot):
 	# if prefix == bot.default_prefix:
 	# 	bot.prefixes[guild] = prefix
 	# 	return
@@ -11,41 +14,41 @@ async def change_prefix(guild, prefix, bot):
 		ON CONFLICT (guild)
 		DO UPDATE
 		SET prefix = $2
-	""", guild, prefix)
-	bot.prefixes[guild] = prefix
+	""", guild_id, prefix)
+	bot.prefixes[guild_id] = prefix
 
-async def get_prefix(bot, message):
+async def get_prefix(bot: Bot, message: discord.Message):
 	if not message.guild:
 		return commands.when_mentioned_or(bot.default_prefix)(bot, message)
 	
-	prefix = bot.prefixes.get(message.guild.id)
+	prefix = bot.prefixes.get(message.guild.id) # type: ignore
 	if prefix:
 		return commands.when_mentioned_or(prefix)(bot, message)
 	
 	prefix = await bot.pool.fetchval(
 		"SELECT prefix FROM prefixes WHERE guild = $1",
-		message.guild.id
+		message.guild.id # type: ignore
 	)
 	prefix = prefix or bot.default_prefix
 
-	bot.prefixes[message.guild.id] = prefix
+	bot.prefixes[message.guild.id] = prefix # type: ignore
 	return commands.when_mentioned_or(prefix)(bot, message)
 
-async def get_guild_prefix(guild, bot): # fetching from database might be completely useless since prefixes are cached in get_prefix
-	prefix = bot.prefixes.get(guild)
+async def get_guild_prefix(guild_id: int, bot: Bot): # fetching from database might be completely useless since prefixes are cached in get_prefix
+	prefix = bot.prefixes.get(guild_id)
 	if prefix is not None:
 		return prefix
 
 	prefix = await bot.pool.fetchval(
 		"SELECT prefix FROM prefixes WHERE guild = $1",
-		guild
+		guild_id
 	)
-	bot.prefixes[guild] = prefix
+	bot.prefixes[guild_id] = prefix
 	return prefix
 
-async def delete_prefix(guild, bot):
-	await bot.pool.execute("""DELETE FROM prefixes WHERE guild = $1""", guild)
+async def delete_prefix(guild_id: int, bot: Bot):
+	await bot.pool.execute("""DELETE FROM prefixes WHERE guild = $1""", guild_id)
 	try:
-		del bot.prefixes[guild]
+		del bot.prefixes[guild_id]
 	except KeyError:
 		pass

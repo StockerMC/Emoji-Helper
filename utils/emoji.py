@@ -4,12 +4,12 @@ from .image import compress_image
 import discord
 import asyncio
 from .bot import Bot
-from discord.utils import _bytes_to_base64_data
+from typing import Union, Coroutine
 
-def get_emoji_url(emoji_id, animated):
+def get_emoji_url(emoji_id: Union[str, int], animated: str) -> str:
 	return f"https://cdn.discordapp.com/emojis/{emoji_id}.{'gif' if animated else 'png'}?v=1"
 
-async def fetch_emoji_image(url, bot):
+async def fetch_emoji_image(url: str, bot: Bot) -> bytes:
 	timeout = aiohttp.ClientTimeout(total=60) # type: ignore
 	async with bot.session.get(url, timeout=timeout) as response:
 		assert response.status == 200
@@ -22,7 +22,7 @@ async def fetch_emoji_image(url, bot):
 async def parse_command_args(name, emojis):
 	pass
 
-async def read_attachment(attachment, bot):
+async def read_attachment(attachment: discord.Attachment, bot: Bot):
 	image = await attachment.read()
 	size = len(image) / 1000 # bytes / 1000 = kilobytes
 	if size > 256:
@@ -30,7 +30,7 @@ async def read_attachment(attachment, bot):
 
 	return image
 
-def guild_has_emoji_slots(guild, format):
+def guild_has_emoji_slots(guild: discord.Guild, format: str):
 	emoji_limit = guild.emoji_limit
 	static_emojis = len([emoji for emoji in guild.emojis if not emoji.animated])
 	animated_emojis = len([emoji for emoji in guild.emojis if emoji.animated])
@@ -55,9 +55,7 @@ async def add_emoji(guild, name, image, reason, format="static"):
 	except discord.HTTPException:
 		raise NoEmojiSlots
 
-from typing import Coroutine
-
-async def safe_add_emoji(create_emoji_coro): # sees if guild is rate limited
+async def safe_add_emoji(create_emoji_coro: Coroutine): # sees if guild is rate limited
 	task = asyncio.create_task(create_emoji_coro)
 	task2 = asyncio.create_task(asyncio.sleep(6))
 	done, pending = await asyncio.wait({

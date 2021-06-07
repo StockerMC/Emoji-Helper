@@ -7,12 +7,16 @@ import discord
 from utils.zip import * # zip_emojis, fetch_zip_url
 from utils.emoji import * # fetch_emoji_image, get_emoji_url, read_attachment
 from utils.errors import EmptyAttachmentName
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+	from utils.bot import Bot, Context
 
 class Emojis(commands.Cog):
-	def __init__(self, bot):
+	def __init__(self, bot: Bot):
 		self.bot = bot
 
-	async def cog_check(self, ctx):
+	async def cog_check(self, ctx: Context):
 		return ctx.guild is not None
 
 	def convert_to_gif(self, image_bytes):
@@ -30,7 +34,7 @@ class Emojis(commands.Cog):
 			# print(image.info)
 			return output.getvalue()
 
-	def gen_list(self, emojis, pages, current_page):
+	def gen_list(self, emojis: list[discord.Emoji], pages: int, current_page: int):
 		current_emojis = emojis[(current_page-1)*10:current_page*10]
 		description = ""
 		for emoji in current_emojis:
@@ -348,7 +352,7 @@ class Emojis(commands.Cog):
 		if not emojis:
 			return await ctx.send("Please specify a valid emoji type (all, animated or static)")
 		
-		file = await self.bot.loop.run_in_executor(zip_emojis, emojis)
+		file = await self.bot.loop.run_in_executor(zip_emojis, emojis) # type: ignore
 		await ctx.send(file=discord.File(file, f"{ctx.guild.id}.zip"))
 
 	@commands.has_permissions(manage_emojis=True)

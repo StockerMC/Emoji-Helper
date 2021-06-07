@@ -1,6 +1,7 @@
 from discord.ext import commands
+from utils.bot import Bot
 
-async def change_emojify(guild, emojify, bot):
+async def change_emojify(guild_id: int, emojify: bool, bot: Bot):
 	# if emojify == bot.default_emojify_toggle:
 	# 	bot.prefixes[guild] = emojify
 	# 	return
@@ -11,32 +12,32 @@ async def change_emojify(guild, emojify, bot):
 		ON CONFLICT (guild)
 		DO UPDATE
 		SET emojify = $2
-	""", guild, emojify)
+	""", guild_id, emojify)
 	
-	bot.emojify_toggles[guild] = emojify
+	bot.emojify_toggles[guild_id] = emojify
 
-async def get_emojify(guild, bot):	
-	emojify = bot.emojify_toggles.get(guild)
+async def get_emojify(guild_id: int, bot: Bot):	
+	emojify = bot.emojify_toggles.get(guild_id)
 	if emojify:
 		return emojify
 	
 	emojify = await bot.pool.fetchval(
 		"SELECT emojify FROM emojify_toggles WHERE guild = $1",
-		guild
+		guild_id
 	)
 
 	emojify = emojify or bot.default_emojify_toggle
 
-	bot.emojify_toggles[guild] = emojify
+	bot.emojify_toggles[guild_id] = emojify
 	return emojify
 
-async def toggle_emojify(guild, bot):
-	emojify = await get_emojify(guild, bot)
-	await change_emojify(guild, not emojify, bot)
+async def toggle_emojify(guild_id: int, bot: Bot):
+	emojify = await get_emojify(guild_id, bot)
+	await change_emojify(guild_id, not emojify, bot)
 
-async def delete_emojify(guild, bot):
-	await bot.pool.execute("""DELETE FROM emojify_toggles WHERE guild = $1""", guild)
+async def delete_emojify(guild_id: int, bot: Bot):
+	await bot.pool.execute("""DELETE FROM emojify_toggles WHERE guild = $1""", guild_id)
 	try:
-		del bot.emojify_toggles[guild]
+		del bot.emojify_toggles[guild_id]
 	except KeyError:
 		pass
