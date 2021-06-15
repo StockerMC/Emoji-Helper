@@ -8,7 +8,7 @@ StartLimitBurst=5
 Type=simple
 WorkingDirectory=/home/eh/Emoji-Helper 
 ExecStart=/home/eh/Emoji-Helper/venv/bin/python3.9 /home/eh/Emoji-Helper/bot.py
-User=stocker
+User=eh
 Restart=on-failure
 RestartSec=5
 Environment=PYTHONUNBUFFERED=1
