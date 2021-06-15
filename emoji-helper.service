@@ -7,7 +7,7 @@ StartLimitBurst=5
 [Service]
 Type=simple
 WorkingDirectory=/home/stocker/Emoji-Helper 
-ExecStart=/home/stocker/Emoji-Helper/venv/bin/python3.9 /root/Emoji-Helper/bot.py
+ExecStart=/home/stocker/Emoji-Helper/venv/bin/python3.9 /home/stocker/Emoji-Helper/bot.py
 User=stocker
 Restart=on-failure
 RestartSec=5
