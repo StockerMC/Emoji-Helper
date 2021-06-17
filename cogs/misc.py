@@ -84,9 +84,9 @@ class Misc(commands.Cog):
 	@commands.command()
 	async def ping(self, ctx):
 		"""Show the bot's ping"""
-		start = time.time()
+		start = time.perf_counter()
 		delay = await ctx.send("Pinging...")
-		ws_latency = round((time.time() - start) * 1000)
+		ws_latency = round((time.perf_counter() - start) * 1000)
 		api_latency = f"{ctx.bot.latency * 1000:.0f}"
 		await delay.edit(content=f"WebSocket Latency: {ws_latency}ms\nAPI Latency: {api_latency}ms")
 
