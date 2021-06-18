@@ -34,24 +34,3 @@ def compress_image(image_bytes: bytes) -> bytes:
 		retries += 1
 
 	return output.getvalue()
-
-# filename = "the-capsule.png"
-
-# import asyncio
-
-# loop = asyncio.get_event_loop()
-
-# async def compress_image_coro():
-# 	with open(filename, "rb") as f:
-# 		original_bytes = f.read()
-# 		e = await loop.run_in_executor(None, compress_image, original_bytes)
-
-
-# 	with open(filename, "wb") as f:
-# 		f.write(e.getvalue())
-
-# 	await asyncio.sleep(2.5)
-# 	with open(filename, "wb") as f:
-# 		f.write(original_bytes)
-
-# loop.run_until_complete(compress_image_coro())
