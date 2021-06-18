@@ -1,4 +1,3 @@
-from discord.ext.commands import CommandError
 from zipfile import BadZipFile
 
 class EmojifyDisabled(Exception):
