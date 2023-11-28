@@ -1,50 +1,70 @@
+# (c) StockerMC
+# SPDX-License-Identifier: EUPL-1.2
+
 from __future__ import annotations
-from zipfile import ZipFile
+
+from zipfile import ZipFile, BadZipFile
 import io
+from discord.ext import commands
+from .decorators import executor
+from .emoji import PartialEmoji_
+import collections
 from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
-	from . import Bot
+    from discord import Emoji
 
-async def zip_emojis(emojis: list) -> io.BytesIO:
-	zip_file = io.BytesIO()
-	with ZipFile(zip_file, "w") as f:
-		temp = {}
-		for emoji in emojis:
-			data = await emoji.url_as().read()
-			try:
-				f.writestr(f"{emoji.name}.{'gif' if emoji.animated else 'png'}", data)
-			except UserWarning:
-				n = temp.get(emoji.name)
-				if n is None:
-					temp[emoji.name] = 1
-				else:
-					temp[emoji.name] += 1
-				f.writestr(f"{emoji.name}_{temp[emoji.name]}.{'gif' if emoji.animated else 'png'}", data)
-	
-	zip_file.seek(0)
-	return zip_file
+# credit to https://github.com/ioistired for this code
+def clean_items(original: list[str]) -> list[str]:
+    out = []
+    counts = collections.Counter()
+    for item in original:
+        count = counts[item]
+        if count != 0:
+            out.append(f"{item}_{count}")
+        else:
+            out.append(item)
+            
+        counts[item] += 1
 
-def unzip_file(file_bytes: bytes) -> Optional[list]: 
-	file = ZipFile(io.BytesIO(file_bytes), "r")
-	names = [name for name in file.namelist() if name.endswith((".png", ".jpg", ".jpeg", ".gif"))]
+    return out
 
-	if not names:
-		return None
-	
-	emojis = []
+def filter_filenames(filenames: list[str]) -> list[str]:
+    return [name for name in filenames if name.endswith((".pngs", ".jpg", ".jpeg", ".gif"))]
 
-	with file as f:
-		for name in names:
-			image = f.read(name)
-			data = {"image": image, "name": name[:-4], "animated": bool(name[-4:] == ".gif")}
-			if data not in emojis:
-				emojis.append(data)
+@executor
+def create_zip_file(emojis: list[PartialEmoji_]) -> io.BytesIO:
+    buffer = io.BytesIO()
+    with ZipFile(buffer, "w") as f:
+        for emoji in emojis:
+            if TYPE_CHECKING:
+                assert emoji.image is not None
 
-	return emojis
+            f.writestr(f"{emoji.name}.{'gif' if emoji.animated else 'png'}", emoji.image)
 
-async def fetch_zip_url(url: str, bot: Bot) -> bytes:
-	async with bot.session.get(url) as response:
-		assert response.status == 200
-		zip_file = await response.read()
-		return zip_file
+    buffer.seek(0)
+    return buffer
+
+async def zip_emojis(emojis: list[Emoji]) -> io.BytesIO:
+    names = clean_items([emoji.name for emoji in emojis])
+    buffer = await create_zip_file([PartialEmoji_(name, emoji.animated, image=await emoji.url.read()) for emoji, name in zip(emojis, names)])
+    return buffer
+
+@executor
+def unzip_file(file_bytes: bytes) -> list[PartialEmoji_]:
+    buffer = io.BytesIO(file_bytes)
+    zip_file = ZipFile(buffer, "r")
+    names = filter_filenames(zip_file.namelist())
+
+    if not names:
+        raise BadZipFile 
+
+    emojis = []
+    with zip_file as f:
+        for name in names:
+            image = f.read(name)
+            name = name[:-4]
+            animated = name.endswith(".gif")
+            emojis.append(PartialEmoji_(name, animated, image=image))
+
+    return emojis

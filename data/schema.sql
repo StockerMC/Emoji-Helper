@@ -1,9 +1,5 @@
-CREATE TABLE IF NOT EXISTS prefixes (
-	guild BIGINT PRIMARY KEY,
-	prefix TEXT
-);
-
-CREATE TABLE IF NOT EXISTS emojify_toggles (
-	guild BIGINT PRIMARY KEY,
-	emojify BOOLEAN
+CREATE TABLE guilds (
+    guild_id BIGINT PRIMARY KEY,
+    prefix TEXT NOT NULL,
+    emojify_toggle BOOLEAN NOT NULL
 );

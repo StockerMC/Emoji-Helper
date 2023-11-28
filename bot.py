@@ -1,69 +1,99 @@
+# (c) StockerMC
+# SPDX-License-Identifier: EUPL-1.2
+
 import discord
-import os
-import warnings
-import logging
-import json
-from utils.bot import Bot, Help, Context
-from utils import database
+from discord.ext import commands
+from utils import Bot, Config
 import asyncio
 import sys
-import pkgutil
+import asyncpg
+import argparse
+from contextlib import asynccontextmanager
+from typing import TYPE_CHECKING, TypedDict
 
-warnings.filterwarnings("error")
+if TYPE_CHECKING:
+    class GuildConfigRecord(asyncpg.Record, TypedDict):
+        # guild_id: int
+        prefix: str
+        emojify_toggle: bool
 
-if sys.platform == "win32":
-    loop = asyncio.ProactorEventLoop()
-    asyncio.set_event_loop(loop)
+async def get_prefix(bot: Bot, message: discord.Message):
+    if message.guild:
+        guild_config = await bot.get_guild_config(message.guild.id) # type: ignore
+    else:
+        guild_config = bot.default_guild_config
 
-with open("data/config.json") as f:
-	config = json.load(f)
+    prefix = guild_config["prefix"]
 
-if not config["database"]["setup_completed"]:
-	import asyncio
-	from utils.database import setup
-	
-	asyncio.create_task(setup(config))
-	config["database"]["setup_completed"] = True
-	with open("data/config.json", "w") as f:
-		json.dump(config, f, indent=4)
+    if bot.mentionable:
+        return commands.when_mentioned_or(prefix)(bot, message)
+    else:
+        return prefix
 
-os.environ["JISHAKU_NO_DM_TRACEBACK"] = "True"
-os.environ["JISHAKU_HIDE"] = "True"
-os.environ["JISHAKU_NO_UNDERSCORE"] = "True"
+@asynccontextmanager
+async def create_pool(**postgres_config):
+    if not postgres_config.pop("use_database"):
+        yield None
 
-bot = Bot(
-	command_prefix=database.get_prefix,
-	intents=discord.Intents(
-		# on_guild_* events and bot.guilds
-		guilds=True,
-		# necessary for commands to work in guilds and DMs
-		messages=True,
-		# reactions will never be listened for in DMs
-		guild_reactions=True,
-		# emoji related attributes and methods
-		emojis=True
-	),
-	case_insensitive=True,
-	help_command=Help(sort_commands=True),
-	activity=discord.Game("e!help"),
-	# prevents an initial API call for is_owner
-	owner_id=323490082382282752,
-	# disables the message cache
-	max_messages=None,
-	config=config
-)
+    else:
+        async with asyncpg.create_pool(**postgres_config) as pool:
+            yield pool
 
-@bot.event
-async def on_command(ctx: Context):
-	try:
-		bot.command_uses[ctx.command.qualified_name] += 1
-	except KeyError:
-		bot.command_uses[ctx.command.qualified_name] = 1
+async def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--shard-count", type=int, default=None, help="The total number of shards. Example: 10. This is optional.")
+    parser.add_argument(
+        "--shard-ids",
+        type=str,
+        default=None,
+        help='An optional list of shard_ids to launch the shards with. These shard_ids should be in a string, separated by a space. Example: "1 2 3 4". This is optional.',
+    )
+    parser.add_argument("--config-file", type=str, default=None, help="The file path for the config file. This is optional.")
+    args = parser.parse_args()
 
-for importer, name, ispkg in pkgutil.iter_modules(("cogs",)):
-	bot.load_extension(f"cogs.{name}")
+    shard_count = args.shard_count
+    if shard_count is not None:
+        shard_count = int(shard_count)
 
-bot.load_extension("jishaku")
+    shard_ids = args.shard_ids
+    if shard_ids is not None:
+        shard_ids = [int(id) for id in shard_ids.split()]
 
-logging.basicConfig(level=logging.WARNING)
-bot.run(config["bot"]["token"])
+    config_file = args.config_file
+    if config_file is None:
+        config_file = "data/config.toml"
+    config = Config(config_file)
+
+    async with create_pool(**config.database) as pool:
+        bot = Bot(
+            command_prefix=get_prefix,
+            intents=discord.Intents(
+                # on_guild_* events and bot.guilds
+                guilds=True,
+                # necessary for commands to work in guilds and DMs
+                messages=True,
+                # reactions will never be listened for in DMs
+                guild_reactions=True,
+                # emoji related attributes and methods
+                emojis=True
+            ),
+            # disables the message cache
+            max_messages=None,
+            # prevents the bot from mentioning anyone (including everyone and roles)
+            allowed_mentions=discord.AllowedMentions.none(),
+            shard_ids=shard_ids,
+            shard_count=shard_count,
+            config=config,
+            pool=pool
+        )
+
+        try:
+            await bot.start(config.bot.token)
+        finally:
+            # await bot.close() # is this necessary?
+            exit_code = config.bot.exit_code
+            if exit_code:
+                sys.exit(exit_code)
+
+if __name__ == "__main__":
+    asyncio.run(main())

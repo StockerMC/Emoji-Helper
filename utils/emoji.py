@@ -1,81 +1,87 @@
-import aiohttp
-from .errors import URLNotImage, GuildEmojiAddRateLimited, NoEmojiSlots
+# (c) StockerMC
+# SPDX-License-Identifier: EUPL-1.2
+
+from __future__ import annotations
+
 from .image import compress_image
-import discord
-import asyncio
-from .bot import Bot
-from typing import Union, Coroutine
+from .decorators import reactiontimer
+import re
+from .errors import NoEmojiSlots
+from discord.ext import commands
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Union, Optional
 
-def get_emoji_url(emoji_id: Union[str, int], animated: str) -> str:
-	return f"https://cdn.discordapp.com/emojis/{emoji_id}.{'gif' if animated else 'png'}?v=1"
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from discord import Guild
 
-async def fetch_emoji_image(url: str, bot: Bot) -> bytes:
-	timeout = aiohttp.ClientTimeout(total=60) # type: ignore
-	async with bot.session.get(url, timeout=timeout) as response:
-		assert response.status == 200
+# class EmbedCommand(commands.Command):
+#     """Command class that makes sure that the bot has permissions to send embeds"""
 
-		if not response.headers["content-type"].startswith("image"):
-			raise URLNotImage
-		image = await response.read()
-		return image
+#     def __init__(self, func, **kwargs):
+#         super().__init__(func, **kwargs)
+#         self.add_check(commands.has_permissions(embed_links=True).predicate)
 
-async def parse_command_args(name, emojis):
-	pass
+class EmojiCommand(commands.Command):
+    """Command class that makes sure that the author and user have manage emoji permissions
+    and that it was in a guild. This also decorates the command with decorators.reactiontimer
+    """
 
-async def read_attachment(attachment: discord.Attachment, bot: Bot):
-	image = await attachment.read()
-	size = len(image) / 1000 # bytes / 1000 = kilobytes
-	if size > 256:
-		image = await bot.loop.run_in_executor(None, compress_image, image)
+    def __init__(self, func, **kwargs):
+        super().__init__(func, **kwargs)
+        self = reactiontimer(self) # we could override __call__ but this is easier
+        self.add_check(commands.has_permissions(manage_emojis=True).predicate)
+        self.add_check(commands.bot_has_permissions(manage_emojis=True).predicate)
+        self.add_check(commands.guild_only().predicate)
 
-	return image
+@dataclass
+class PartialEmoji_:
+    name: str
+    animated: bool
+    url: Optional[str] = None
+    image: Optional[bytes] = None
 
-def guild_has_emoji_slots(guild: discord.Guild, format: str):
-	emoji_limit = guild.emoji_limit
-	static_emojis = len([emoji for emoji in guild.emojis if not emoji.animated])
-	animated_emojis = len([emoji for emoji in guild.emojis if emoji.animated])
-	
-	if format == "static" and static_emojis >= emoji_limit:
-		return False
+def get_emoji_url(emoji_id: Union[str, int], animated: bool) -> str:
+    return f"https://cdn.discordapp.com/emojis/{emoji_id}.{'gif' if animated else 'png'}?v=1"
 
-	elif format == "animated" and animated_emojis >= emoji_limit:
-		return False
+def guild_has_emoji_slots(guild: Guild, format: str):
+    emoji_limit = guild.emoji_limit
+    if format == "animated":
+        animated = True
+    elif format == "static":
+        animated = False
+    else:
+        animated = None
 
-	elif format == "all" and animated_emojis >= emoji_limit and static_emojis >= emoji_limit:
-		return False
+    static_emojis = len([emoji for emoji in guild.emojis if not emoji.animated])
+    animated_emojis = len([emoji for emoji in guild.emojis if emoji.animated])
+    
+    if (
+        (not animated and static_emojis >= emoji_limit) or
+        (animated and animated_emojis >= emoji_limit) or
+        (animated is None and animated_emojis >= emoji_limit and static_emojis >= emoji_limit)
+    ):
+        raise NoEmojiSlots(animated, emoji_limit)
 
-	return True
+def emoji_can_be_added(guild: Guild, animated: bool) -> bool:
+    emoji_limit = guild.emoji_limit
+    static_emojis = len([emoji for emoji in guild.emojis if not emoji.animated])
+    animated_emojis = len([emoji for emoji in guild.emojis if emoji.animated])
 
-async def add_emoji(guild, name, image, reason, format="static"):
-	if not guild_has_emoji_slots(guild, format):
-		raise NoEmojiSlots
+    if animated:
+        if animated_emojis >= emoji_limit:
+            return False
+    else:
+        if static_emojis >= emoji_limit:
+            return False
 
-	try:
-		await guild.create_custom_emoji(name=name, image=image, reason=reason)
-	except discord.HTTPException:
-		raise NoEmojiSlots
+    return True
 
-async def safe_add_emoji(create_emoji_coro: Coroutine): # sees if guild is rate limited
-	task = asyncio.create_task(create_emoji_coro)
-	task2 = asyncio.create_task(asyncio.sleep(6))
-	done, pending = await asyncio.wait({
-		task,
-		task2
-	}, return_when=asyncio.FIRST_COMPLETED)
-	
-	result = done.pop().result()
-	if not result: # if the sleep returned first
-		raise GuildEmojiAddRateLimited
+def find_emojis_in_iterable(iterable: Iterable) -> list[str]:
+    string = "".join(iterable)
+    emoji_regex = r"<(?P<animated>a?):(?P<name>[a-zA-Z0-9_]{2,32}):(?P<id>[0-9]{18,22})>"
+    return re.findall(emoji_regex, string)
 
-	for future in pending:
-		future.cancel()
-
-	return result
-
-# async def add_emoji_api_request(bot, guild, image, name, reason):
-# 	# async with bot.__session
-# 	payload = {
-# 		"name": name,
-# 		"image": _bytes_to_base64_data(image),
-# 		"roles": []
-# 	}
+def string_is_url(string: str) -> bool:
+    url_regex = r"<?(https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9()@:%_\+.~#?&//=]*)>?"
+    return re.match(url_regex, string) is not None

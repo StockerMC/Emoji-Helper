@@ -1,1 +1,9 @@
 __pycache__/
+.vscode/
+config.ini
+# remove these ones when finished
+*.service
+test*
+*test
+*test*
+archived/

@@ -1,0 +1,46 @@
+# (optional) means you can provide a value or leave it as an empty string
+# an example is the default for webhook_url and guild_log
+
+[bot]
+token = "token here"
+support_server_invite = "" # if this isn't provided, the support command will be disabled
+case_insensitive = true # if this is true, commands will be case insensitive
+exit_code = "" # the process will be exited with that exit code when the bot shuts down (optional integer)
+activity = "{prefix}help" # {prefix} refers to [prefix].default_prefix
+color = "F9C94C" # the color for (most) embeds, can be a decimal number (16369996) or a hex number ("F9C94C")
+
+[prefix]
+default_prefix = "e!"
+mentionable = true # if this is true, you can mention the bot for commands
+
+[emojis]
+success =  # if not provided, :white_check_mark: will be used
+error =  # if not provided, :x: will be used
+arrow =  # if not provided, :arrow_forward: will be used (this will be used when long operations may occur)
+
+[database] # you don't have to provide this info if you set use_database to false
+use_database = false # if this is true, people will be able to change the prefix for the bot and toggle the emojify command for a guild
+user = ""
+password = ""
+database = ""
+host = "127.0.0.1"
+
+# jishaku is an optional extension you can install <readme link to jishaku section here>
+[jishaku] # these should be strings that are "true" or "false"
+HIDE = true # Whether the Jishaku command should be hidden from help
+RETAIN = true # Whether retention mode for REPL should be enabled by default
+NO_UNDERSCORE = true # Whether default variables in REPL (such as _ctx) should not be prefixed with _
+NO_DM_TRACEBACK = true # Whether error tracebacks should be sent to the invoking channel instead of dm
+
+[logging]
+level = "WARNING" # the logging level for the bot (optional)
+webhook_url = "" # the url of the webhook you want to send logging messages to (optional)
+print = true # print the logging messages to the terminal
+format = "{levelname}:{name}:{message}" # example: INFO:discord.client:logging in using static token; documentation: https://docs.python.org/3/library/logging.html#logrecord-attributes
+
+[Channels]
+guild_log = "" # the channel ID for logging guild joins and leaves (optional)
+traceback_channel = "" # the channel ID for the tracebacks of errors to be sent in
+
+[License]
+repository_url = "https://github.com/StockerMC/Emoji-Helper" # as per the license, if you modify the source you are required to disclose the source and change this to the repository URL of the modified source
