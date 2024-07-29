@@ -195,4 +195,4 @@ Pull requests are welcome. -->
 
 # License
 [European Union Public License 1.2](https://choosealicense.com/licenses/eupl-1.2/)
-As per the license, if you modify the source code you must make your bot open source and put it's repository URL in the config file.
+As per the license, if you modify the source code you must make your bot open source and put its repository URL in the config file.
