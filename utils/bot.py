@@ -289,7 +289,7 @@ class Bot(commands.AutoShardedBot):
                 missing_perms = []
                 me = ctx.guild.me
                 if me is not None:
-                    permissions = me.permissions_in(ctx.channel)
+                    permissions = ctx.channel.permissions_for(me)
                     if not permissions.send_messages:
                         return
                     if not me.guild_permissions.manage_emojis and ctx.command.name in ("add", "remove", "rename", "addmultiple", "removemultiple"):

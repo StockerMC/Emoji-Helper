@@ -1,5 +1,4 @@
-discord.py==1.7.3
+git+https://github.com/StockerMC/discord.py_fork
 toml
 asyncpg
 git+https://github.com/Rapptz/discord-ext-menus
-# Wand # ????

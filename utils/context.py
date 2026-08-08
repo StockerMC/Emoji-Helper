@@ -156,7 +156,7 @@ class Context(commands.Context):
     def command_error(self, message: str = "") -> discord.Embed:
         embed = discord.Embed(title=f"Error{f' in command `{self.command}`' if self.command is not None else ''}", description=message, color=0xD63636)
         embed.timestamp = datetime.datetime.utcnow()
-        embed.set_footer(text=self.author, icon_url=self.author.avatar_url) # type: ignore
+        embed.set_footer(text=self.author, icon_url=self.author.display_avatar.url)
         return embed
 
     # This was inspired by
