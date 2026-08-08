@@ -2,9 +2,6 @@
 Emoji Helper is a bot inspired by [Emote Manager](https://github.com/EmoteBot/EmoteManager/) that helps you manage emojis.
 If you need any help, feel free to join the [Support Server](https://discord.gg/nptFDCVPWX) or make an issue/discussion.
 
-## Note: This project is in development
-There will be bugs/debug print statements currently.
-
 # Commands
 ### Default prefixes:
 - e!
@@ -49,7 +46,7 @@ There will be bugs/debug print statements currently.
         - `e!del`
         - `e!rm`
 
-#### Transfering emojis
+#### Transferring emojis
 
 - `e!export [emoji type]`
     - Create a ZIP file with the server's emojis
@@ -72,7 +69,7 @@ There will be bugs/debug print statements currently.
     - Lists the emojis in the server
     - Defaults to all emojis
 - `e!stats [emoji type]`
-    - Shows the stats of of the provided emoji type emojis for the server
+    - Shows the stats of the provided emoji type emojis for the server
         - The number and percentage of emoji slots used and available <!-- does this make grammatical sense? -->
     - Defaults to all emojis
 - `e!big <emoji>`
@@ -108,7 +105,7 @@ There will be bugs/debug print statements currently.
 To host the bot, you will need:
 - [Python 3.9+](https://www.python.org/downloads/)
 - [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-- [PostgresSQL 9.5+](https://www.postgresql.org/download/) (Optional) <!-- Is the version minimum correct? -->
+- [PostgreSQL 9.5+](https://www.postgresql.org/download/) (Optional) <!-- Is the version minimum correct? -->
     - For custom prefixes/toggling of the emojify command
 - [ImageMagick](https://docs.wand-py.org/en/0.4.1/guide/install.html) (Optional)
     - For image compression/conversion
@@ -160,7 +157,7 @@ $ copy data/config.example.ini data/config.ini
 
 $ (python) -m pip install -r requirements.txt
 # Open data/config.ini and add your token to [bot].token
-# and mofiy the config to your needs.
+# and modify the config to your needs.
 $ (python) bot.py
 ```
 
@@ -175,12 +172,12 @@ $ (python) bot.py
 - `--shard-count`
     - The total number of shards.
     - Type: integer
-    - Example: `(python) bot.py --shard-ids 10`
+    - Example: `(python) bot.py --shard-count 10`
 - `--shard-ids`
     - A list of shard_ids to launch the shards with.
     - Type: string of integers separated by a space
         - String means in double or single quotes as shown in the example below
-    - Example: `(python) bot.py --shard-count "1 2 3 4"`
+    - Example: `(python) bot.py --shard-ids "1 2 3 4"`
 - `--config-file`
     - The file path for the config file
     - Type: `ini` file path
